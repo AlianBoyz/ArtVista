@@ -1,5 +1,5 @@
 package com.artvista.artvista.Backend.repository;
 
-public class ProductRepository {
+public class PaintingsRepository {
     
 }

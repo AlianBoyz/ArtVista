@@ -1,5 +1,5 @@
 package com.artvista.artvista.Backend.model;
 
-public class Product {
+public class Paintings {
     
 }

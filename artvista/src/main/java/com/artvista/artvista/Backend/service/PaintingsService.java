@@ -1,5 +1,5 @@
 package com.artvista.artvista.Backend.service;
 
-public class ProductService {
+public class PaintingsService {
     
 }

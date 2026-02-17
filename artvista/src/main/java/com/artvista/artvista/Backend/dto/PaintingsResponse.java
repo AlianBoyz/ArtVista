@@ -1,5 +1,5 @@
 package com.artvista.artvista.Backend.dto;
 
-public class ProductResponse {
+public class PaintingsResponse {
     
 }
