@@ -1,0 +1,198 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
+}
+
+body {
+    background: #f7f7f7;
+}
+
+
+/* ================= NAVBAR ================= */
+
+.navbar {
+    height: 70px;
+    background: #d07b7b;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 30px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: black;
+}
+
+.profile {
+    width: 35px;
+}
+
+
+/* ================= MAIN ================= */
+
+.event-container {
+    padding: 50px 80px;
+}
+
+
+/* ================= TOP ================= */
+
+.event-top {
+    display: flex;
+    gap: 50px;
+    margin-bottom: 50px;
+}
+
+.event-image {
+    width: 55%;
+}
+
+.event-image img {
+    width: 100%;
+    border-radius: 10px;
+}
+
+.event-info {
+    width: 45%;
+}
+
+.event-info h1 {
+    font-size: 32px;
+}
+
+.event-info h3 {
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.event-info h2 {
+    margin: 20px 0;
+}
+
+.event-info p {
+    margin-bottom: 8px;
+}
+
+.register-btn {
+    margin-top: 25px;
+    padding: 12px 30px;
+    background: #4b4acb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.register-btn:hover {
+    opacity: 0.9;
+}
+
+
+/* ================= DETAILS ================= */
+
+.event-details {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 70px;
+}
+
+.details-left {
+    width: 65%;
+}
+
+.details-left h2 {
+    margin: 25px 0 15px;
+}
+
+.details-left p {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+
+.details-right {
+    width: 35%;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.08);
+}
+
+.details-right h2 {
+    margin-bottom: 20px;
+}
+
+.organizer {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.organizer img {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.event-btn {
+    margin-top: 20px;
+    padding: 10px 25px;
+    border: 2px solid #c24b9e;
+    background: transparent;
+    color: #c24b9e;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.event-btn:hover {
+    background: #c24b9e;
+    color: white;
+}
+
+
+/* ================= OTHER EVENTS ================= */
+
+.other-events {
+    padding: 50px 80px;
+    background: linear-gradient(135deg,#fce9e9,#e6f0ff);
+}
+
+.other-events h2 {
+    margin-bottom: 25px;
+}
+
+.other-row {
+    display: flex;
+    gap: 30px;
+}
+
+.other-card {
+    width: 280px;
+}
+
+.other-card img {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.other-card p {
+    font-size: 14px;
+    color: #666;
+}

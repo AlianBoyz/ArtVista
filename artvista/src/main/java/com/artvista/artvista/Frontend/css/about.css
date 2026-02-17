@@ -1,0 +1,94 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg,#fce9e9,#e6f0ff);
+}
+
+
+/* ================= NAVBAR ================= */
+
+.navbar {
+    height: 70px;
+    background: #d07b7b;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 30px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: black;
+    font-weight: 500;
+}
+
+.nav-links .active {
+    color: #4b4acb;
+}
+
+.profile {
+    width: 35px;
+    border-radius: 50%;
+}
+
+
+/* ================= HERO ================= */
+
+.hero {
+    padding: 50px 80px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.hero-left h1 {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.hero-left p {
+    font-size: 18px;
+    color: #444;
+}
+
+.hero-right img {
+    width: 320px;
+    border-radius: 12px;
+}
+
+
+/* ================= CONTENT ================= */
+
+.about-content {
+    padding: 40px 80px 70px;
+}
+
+.content-box {
+    background: white;
+    padding: 35px;
+    border-radius: 15px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+.content-box p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #333;
+    margin-bottom: 18px;
+}
