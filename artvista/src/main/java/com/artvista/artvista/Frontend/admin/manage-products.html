@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Manage Paintings</title>
+    <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+
+<!-- Top Navbar -->
+<nav class="admin-navbar">
+    <div class="logo">ArtVista</div>
+    <div class="admin-title">ADMIN IN</div>
+</nav>
+
+<div class="admin-container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <div class="profile">
+            <img src="../assets/images/artist.jpg">
+            <span>User name</span>
+        </div>
+
+        <ul class="menu">
+            <li>Dashboard</li>
+            <li>Manage Event</li>
+            <li class="active">Manage Paintings</li>
+            <li>Manage User</li>
+            <li>Manage Artist</li>
+        </ul>
+
+    </aside>
+
+    <!-- Main Content -->
+    <main class="manage-content">
+
+        <h1>Paintings Management</h1>
+
+        <div class="top-section">
+            <img src="../assets/images/painting1.jpg" class="top-image">
+
+            <div class="search-box">
+                <input type="text" placeholder="Value">
+                <button>🔍</button>
+            </div>
+        </div>
+
+        <div class="table-box">
+
+            <div class="table-header">
+                <span>Paintings</span>
+                <span>Price</span>
+                <button class="add-btn">Add Paintings</button>
+            </div>
+
+            <!-- Painting Row -->
+            <div class="table-row">
+                <div class="event-info">
+                    <img src="../assets/images/painting2.jpg">
+                    <div>
+                        <h3>River</h3>
+                        <p>By Richard Williams</p>
+                    </div>
+                </div>
+                <span>Rs 89,000</span>
+                <div class="action-buttons">
+                    <button class="edit-btn">Edit</button>
+                    <button class="delete-btn">🗑</button>
+                </div>
+            </div>
+
+            <div class="table-row">
+                <div class="event-info">
+                    <img src="../assets/images/painting3.jpg">
+                    <div>
+                        <h3>Bird in the tree</h3>
+                        <p>By Sophia Williams</p>
+                    </div>
+                </div>
+                <span>Rs 89,000</span>
+                <div class="action-buttons">
+                    <button class="edit-btn">Edit</button>
+                    <button class="delete-btn">🗑</button>
+                </div>
+            </div>
+
+            <div class="table-row">
+                <div class="event-info">
+                    <img src="../assets/images/painting1.jpg">
+                    <div>
+                        <h3>City</h3>
+                        <p>By Maya Taylor</p>
+                    </div>
+                </div>
+                <span>Rs 89,000</span>
+                <div class="action-buttons">
+                    <button class="edit-btn">Edit</button>
+                    <button class="delete-btn">🗑</button>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <button>&lt;</button>
+                <button class="active">1</button>
+                <button>2</button>
+                <button>3</button>
+                <button>4</button>
+                <button>&gt;</button>
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+</body>
+</html>

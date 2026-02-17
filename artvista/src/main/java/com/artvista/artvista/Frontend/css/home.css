@@ -1,0 +1,185 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #fce9e9, #e6f0ff);
+}
+
+/* ================= NAVBAR ================= */
+.navbar {
+    height: 70px;
+    background: #d07b7b;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 30px;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #000;
+    font-weight: 500;
+}
+
+.profile img {
+    width: 35px;
+}
+
+/* ================= HERO ================= */
+.hero {
+    display: flex;
+    padding: 60px 80px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.hero-left {
+    width: 50%;
+}
+
+.hero-left h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+}
+
+.hero-left p {
+    margin-bottom: 30px;
+    color: #555;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.primary-btn {
+    background: #5c3dc4;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+}
+
+.outline-btn {
+    border: 2px solid #c24b9e;
+    background: transparent;
+    padding: 10px 20px;
+    border-radius: 6px;
+}
+
+.search-box {
+    width: 300px;
+    display: flex;
+    border: 1px solid #999;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.search-box input {
+    flex: 1;
+    padding: 8px;
+    border: none;
+}
+
+.search-box span {
+    padding: 8px 12px;
+    background: #eee;
+}
+
+/* ================= HERO RIGHT ================= */
+.hero-right {
+    width: 40%;
+}
+
+.hero-right img {
+    width: 100%;
+    border-radius: 10px;
+}
+
+.card-info {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    font-size: 14px;
+}
+
+/* ================= SECTION ================= */
+.section {
+    padding: 50px 80px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.section-header a {
+    text-decoration: none;
+    color: #5c3dc4;
+}
+
+/* ================= TRENDING ================= */
+.card-row {
+    display: flex;
+    gap: 20px;
+}
+
+.art-card {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    width: 200px;
+}
+
+.art-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+/* ================= EVENTS ================= */
+.event-row {
+    display: flex;
+    gap: 30px;
+}
+
+.event-card {
+    width: 300px;
+}
+
+.event-card img {
+    width: 100%;
+    border-radius: 10px;
+}
+
+.event-card h3 {
+    margin-top: 10px;
+}
+
+.event-card p {
+    font-size: 14px;
+    color: #666;
+}
+
+.event-card a {
+    text-decoration: none;
+    color: #5c3dc4;
+    font-weight: bold;
+}
