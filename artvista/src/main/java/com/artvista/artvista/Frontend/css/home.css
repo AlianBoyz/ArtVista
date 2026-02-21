@@ -36,6 +36,11 @@ body {
     font-weight: 500;
 }
 
+.nav-links .active {
+    color: #4b4acb;
+    font-weight: 500;
+}
+
 .profile img {
     width: 35px;
 }
@@ -75,12 +80,20 @@ body {
     border: none;
     border-radius: 6px;
 }
+.primary-btn:hover {
+    opacity: 0.9;
+}
 
 .outline-btn {
     border: 2px solid #c24b9e;
     background: transparent;
     padding: 10px 20px;
     border-radius: 6px;
+}
+
+.outline-btn:hover {
+    background: #c24b9e;
+    color: white;
 }
 
 .search-box {

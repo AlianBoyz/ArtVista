@@ -2,15 +2,14 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "Segoe UI", sans-serif;
+    font-family: 'Segoe UI', sans-serif;
 }
 
 body {
-    background: #f7f7f7;
+    background: #f4f4f4;
 }
 
-
-/* NAVBAR */
+/* ================= NAVBAR ================= */
 
 .navbar {
     height: 70px;
@@ -35,91 +34,95 @@ body {
 .nav-links a {
     text-decoration: none;
     color: black;
+    font-weight: 500;
 }
 
 .nav-links .active {
-    color: #4b4acb;
+    color: #4e46b4;
 }
 
-.profile {
-    width: 35px;
-}
-
-
-/* HERO */
+/* ================= HERO ================= */
 
 .hero {
-    background: linear-gradient(135deg,#fce9e9,#e6f0ff);
-    padding: 50px 80px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 60px;
+    background: linear-gradient(120deg, #f8e1d4, #d8e9f2);
+}
+
+.hero-left {
+    width: 50%;
 }
 
 .hero-left h1 {
-    font-size: 36px;
+    font-size: 40px;
     margin-bottom: 10px;
 }
 
 .hero-left p {
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    color: #555;
 }
 
 .search-box {
     display: flex;
-    width: 300px;
-    border: 1px solid #999;
-    border-radius: 20px;
-    overflow: hidden;
+    width: 350px;
     background: white;
+    border-radius: 30px;
+    overflow: hidden;
+    border: 1px solid #ccc;
 }
 
 .search-box input {
     flex: 1;
-    padding: 8px 12px;
     border: none;
+    padding: 10px 15px;
+    outline: none;
 }
 
 .search-box span {
-    padding: 8px 12px;
+    padding: 10px 15px;
+    cursor: pointer;
 }
 
 .hero-right img {
-    width: 260px;
-    border-radius: 10px;
+    width: 280px;
+    border-radius: 6px;
 }
 
-
-/* MAIN */
+/* ================= MAIN LAYOUT ================= */
 
 .main {
     display: flex;
-    padding: 40px 80px;
-    gap: 40px;
 }
 
-
-/* SIDEBAR */
+/* ================= SIDEBAR ================= */
 
 .sidebar {
-    width: 230px;
-    background: white;
-    padding: 25px;
-    border-radius: 10px;
+    width: 250px;
+    padding: 30px;
+    background: #e5e5e5;
 }
 
 .sidebar h3 {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .list {
     list-style: none;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
 }
 
 .list li {
-    margin-bottom: 8px;
-    color: #555;
+    padding: 8px 0;
+    color: #333;
+}
+
+.sidebar hr {
+    margin: 20px 0;
+    border: none;
+    border-top: 1px solid #ccc;
 }
 
 .check-group label {
@@ -128,80 +131,92 @@ body {
     font-size: 14px;
 }
 
-.sidebar hr {
-    margin: 25px 0;
-    border: 0.5px solid #ddd;
-}
-
-
-/* CONTENT */
+/* ================= CONTENT ================= */
 
 .content {
     flex: 1;
+    padding: 30px;
 }
 
 .content-top {
     display: flex;
     justify-content: flex-end;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
 }
 
 .content-top select {
     padding: 8px 12px;
-    border-radius: 6px;
 }
 
-
-/* GRID */
+/* ================= GRID ================= */
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(2,1fr);
-    gap: 30px;
+    grid-template-columns: repeat(2, 1fr);  /* 2 columns */
+    gap: 25px;
 }
 
 .card {
     background: white;
-    border-radius: 10px;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     overflow: hidden;
+    transition: 0.3s;
 }
 
 .card img {
     width: 100%;
-    height: 220px;
+    height: 260px;  /* Slightly taller for 2-column layout */
     object-fit: cover;
 }
 
 .card h4 {
-    margin: 10px;
+    padding: 12px 15px 0 15px;
+    font-size: 18px;
 }
 
 .card p {
-    margin: 0 10px 15px;
+    padding: 8px 15px 15px 15px;
     font-size: 14px;
     color: #666;
 }
 
 
-/* PAGINATION */
+/* ================= PAGINATION ================= */
 
 .pagination {
     margin-top: 40px;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
 }
 
 .pagination button {
-    padding: 6px 12px;
-    margin: 0 5px;
-    border: 1px solid #c24b9e;
+    padding: 8px 12px;
+    border: 1px solid #b14692;
     background: transparent;
-    color: #c24b9e;
-    border-radius: 5px;
     cursor: pointer;
+    border-radius: 4px;
 }
 
 .pagination .active {
-    background: #4b4acb;
+    background: #4e46b4;
     color: white;
     border: none;
+}
+
+/* ================= CARD ANIMATION ================= */
+
+.card {
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 20px rgba(0,0,0,0.15);
 }

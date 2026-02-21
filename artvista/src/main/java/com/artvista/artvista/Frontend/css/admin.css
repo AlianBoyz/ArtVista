@@ -212,6 +212,9 @@ body {
     border-radius: 6px;
     cursor: pointer;
 }
+.edit-btn{
+    opacity: 0.9;
+}
 
 .delete-btn {
     padding: 6px 12px;
@@ -219,6 +222,10 @@ body {
     background: transparent;
     border-radius: 6px;
     cursor: pointer;
+}
+.delete-btn:hover {
+    background: #c24b9e;
+    color: white;
 }
 
 /* Pagination */
