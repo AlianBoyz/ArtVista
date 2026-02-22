@@ -28,6 +28,9 @@ public class Artist {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    
+
+
     public Artist(){}
 
     public Artist(Long id, String name, String bio, String profileImage, LocalDateTime createdAt) {
