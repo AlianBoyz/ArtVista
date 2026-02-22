@@ -1,9 +1,5 @@
 package com.artvista.artvista.Backend.model;
 
-import java.math.BigDecimal;
-
-import com.artvista.artvista.Backend.model.OrderItem.ItemType;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
