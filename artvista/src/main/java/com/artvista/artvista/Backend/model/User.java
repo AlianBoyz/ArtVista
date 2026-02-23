@@ -46,7 +46,7 @@ public class User {
     private String landmark;
 
 
-    @Column(name="crated_at", updatable = false)
+    @Column(name="created_at", updatable = false)
     private LocalDateTime cratedAt=LocalDateTime.now();
 
     @OneToMany(mappedBy = "user")
