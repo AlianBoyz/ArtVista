@@ -1,5 +1,6 @@
 package com.artvista.artvista.Backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
@@ -22,11 +23,13 @@ public class OrderItem {
     //  Many OrderItems → One Order
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = false)
+    @JsonIgnoreProperties({"items"})
     private Order order;
 
     // Many OrderItems → One Painting (optional)
     @ManyToOne
     @JoinColumn(name = "painting_id", nullable = true)
+    @JsonIgnoreProperties({"cartItems", "orderItems"})
     private Painting painting;
 
     // Many OrderItems → One Event (optional)

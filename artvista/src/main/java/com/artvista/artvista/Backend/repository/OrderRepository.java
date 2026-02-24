@@ -8,4 +8,6 @@ import com.artvista.artvista.Backend.model.Order;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByUserId(Long userId);
+
+    List<Order> findByItemsPaintingId(Long paintingId);
 }

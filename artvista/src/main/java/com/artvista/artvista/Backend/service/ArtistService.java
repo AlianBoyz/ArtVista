@@ -7,6 +7,10 @@ public interface ArtistService {
 
     Artist addArtist(Artist artist);
 
+    Artist updateArtist(Long id, Artist artist);
+
+    Artist getArtistById(Long id);
+
     List<Artist> getAllArtists();
 
     void deleteArtist(Long id);

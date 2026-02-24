@@ -1,5 +1,11 @@
 package com.artvista.artvista.Backend.service;
 
-public class AuthService {
-    
+import com.artvista.artvista.Backend.dto.AuthResponse;
+import com.artvista.artvista.Backend.dto.LoginRequest;
+import com.artvista.artvista.Backend.dto.SignupRequest;
+
+public interface AuthService {
+    AuthResponse signup(SignupRequest request);
+
+    AuthResponse login(LoginRequest request);
 }

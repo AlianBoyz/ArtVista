@@ -1,5 +1,6 @@
 package com.artvista.artvista.Backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -35,10 +36,12 @@ public class Order {
     // Many Orders → One User
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnoreProperties({"orders", "cart", "password"})
     private User user;
 
     // One Order → Many OrderItems
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("order")
     private List<OrderItem> items;
 
      public enum PaymentType {

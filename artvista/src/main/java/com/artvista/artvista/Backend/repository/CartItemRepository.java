@@ -8,4 +8,10 @@ import com.artvista.artvista.Backend.model.CartItem;
 
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     List<CartItem> findByCartId(Long cartId);
+
+    List<CartItem> findByCartUserId(Long userId);
+
+    List<CartItem> findByPaintingId(Long paintingId);
+
+    CartItem findByCartUserIdAndPaintingId(Long userId, Long paintingId);
 }

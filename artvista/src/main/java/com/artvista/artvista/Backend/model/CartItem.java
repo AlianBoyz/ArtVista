@@ -1,5 +1,6 @@
 package com.artvista.artvista.Backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -27,10 +28,12 @@ public class CartItem {
 
     @ManyToOne
     @JoinColumn(name= "cart_id")
+    @JsonIgnoreProperties({"items", "user"})
     private Cart cart;
 
     @ManyToOne
     @JoinColumn(name = "painting_id", nullable = true)
+    @JsonIgnoreProperties({"cartItems", "orderItems"})
     private Painting painting;
 
     @ManyToOne

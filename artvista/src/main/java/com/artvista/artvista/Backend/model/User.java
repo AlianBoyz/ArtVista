@@ -1,4 +1,6 @@
 package com.artvista.artvista.Backend.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -25,6 +27,7 @@ public class User {
     private String email;
 
     @Column (nullable = false, length = 255 )
+    @JsonIgnore
     private String password;
 
     @Column(name = "contact", nullable = false)
@@ -50,9 +53,11 @@ public class User {
     private LocalDateTime cratedAt=LocalDateTime.now();
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<Order> orders;
 
     @OneToOne(mappedBy= "user")
+    @JsonIgnore
     private Cart cart;
 
     public User(){}

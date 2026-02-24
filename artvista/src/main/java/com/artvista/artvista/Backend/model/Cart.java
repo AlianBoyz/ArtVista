@@ -1,5 +1,6 @@
 package com.artvista.artvista.Backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
 
@@ -22,9 +23,11 @@ public class Cart {
     
     @OneToOne
     @JoinColumn(name="user_id", unique = true)
+    @JsonIgnoreProperties({"orders", "cart", "password"})
     private User user;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("cart")
     private List<CartItem> items;
     
     public Cart(){}

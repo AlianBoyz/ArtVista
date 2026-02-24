@@ -1,5 +1,6 @@
 package com.artvista.artvista.Backend.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -44,10 +45,12 @@ public class Painting {
     private Artist artist;
 
     @OneToMany(mappedBy = "painting")
+    @JsonIgnore
     private List<CartItem> cartItems;
 
     // One Painting → Many OrderItems
     @OneToMany(mappedBy = "painting")
+    @JsonIgnore
     private List<OrderItem> orderItems;
 
     // Default constructor (Required by JPA)

@@ -7,6 +7,8 @@ public interface PaintingService {
 
     Painting addPainting(Painting painting);
 
+    Painting updatePainting(Long id, Painting painting);
+
     List<Painting> getAllPaintings();
 
     Painting getPaintingById(Long id);

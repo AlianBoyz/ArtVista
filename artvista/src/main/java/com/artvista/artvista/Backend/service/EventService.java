@@ -7,6 +7,8 @@ public interface EventService {
 
     Event addEvent(Event event);
 
+    Event updateEvent(Long id, Event event);
+
     List<Event> getAllEvents();
 
     Event getEventById(Long id);
