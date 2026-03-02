@@ -11,6 +11,8 @@ public interface PaintingService {
 
     List<Painting> getAllPaintings();
 
+    List<Painting> getPaintingsByArtistId(Long artistId);
+
     Painting getPaintingById(Long id);
 
     void deletePainting(Long id);

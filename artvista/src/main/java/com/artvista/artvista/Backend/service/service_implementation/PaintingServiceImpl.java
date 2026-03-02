@@ -43,6 +43,15 @@ public class PaintingServiceImpl implements PaintingService {
     }
 
     @Override
+    public List<Painting> getPaintingsByArtistId(Long artistId) {
+        List<Painting> paintings = paintingRepository.findByArtistId(artistId);
+        if (paintings.isEmpty()) {
+            throw new ResourceNotFoundException("No paintings found for artist id: " + artistId);
+        }
+        return paintings;
+    }
+
+    @Override
     public Painting getPaintingById(Long id) {
         return paintingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Painting not found with id: " + id));

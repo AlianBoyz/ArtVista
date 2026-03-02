@@ -11,6 +11,8 @@ public interface EventService {
 
     List<Event> getAllEvents();
 
+    List<Event> getEventsByArtistId(Long artistId);
+
     Event getEventById(Long id);
 
     void deleteEvent(Long id);

@@ -42,6 +42,15 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public List<Event> getEventsByArtistId(Long artistId) {
+        List<Event> events = eventRepository.findByArtistId(artistId);
+        if(events.isEmpty()) {
+            throw new ResourceNotFoundException("No events found for artist id: " + artistId);
+        }
+        return events;
+    }
+
+    @Override
     public Event getEventById(Long id) {
         return eventRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + id));
