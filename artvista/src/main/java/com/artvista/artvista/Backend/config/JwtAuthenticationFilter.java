@@ -2,6 +2,7 @@ package com.artvista.artvista.Backend.config;
 
 import com.artvista.artvista.Backend.repository.UserRepository;
 import com.artvista.artvista.Backend.util.JwtUtil;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,19 +51,36 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String userEmail = jwtUtil.getUsernameFromToken(jwtToken);
-        if (userRepository.findByEmail(userEmail).isEmpty()) {
+        Claims claims = jwtUtil.getAllClaimsFromToken(jwtToken);
+        String role = claims.get("role", String.class);
+        boolean isAdminToken = "ADMIN".equalsIgnoreCase(role);
+
+        if (requestUri.startsWith("/api/admin/") && !requestUri.equals("/api/admin/login")) {
+            if (!isAdminToken) {
+                writeForbidden(response, "Admin access required");
+                return;
+            }
+        } else if (!isAdminToken && userRepository.findByEmail(userEmail).isEmpty()) {
             writeUnauthorized(response, "User not found for token");
             return;
         }
 
         // Make authenticated user available to downstream handlers if needed.
         request.setAttribute("authenticatedEmail", userEmail);
+        request.setAttribute("authenticatedRole", isAdminToken ? "ADMIN" : "USER");
 
         filterChain.doFilter(request, response);
     }
 
     private void writeUnauthorized(HttpServletResponse response, String message) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        String sanitized = message.replace("\"", "");
+        response.getWriter().write("{\"success\":false,\"message\":\"" + sanitized + "\"}");
+    }
+
+    private void writeForbidden(HttpServletResponse response, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setContentType("application/json");
         String sanitized = message.replace("\"", "");
         response.getWriter().write("{\"success\":false,\"message\":\"" + sanitized + "\"}");

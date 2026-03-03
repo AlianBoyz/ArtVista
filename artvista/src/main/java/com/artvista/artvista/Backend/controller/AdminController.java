@@ -1,5 +1,7 @@
 package com.artvista.artvista.Backend.controller;
 
+import com.artvista.artvista.Backend.dto.AuthResponse;
+import com.artvista.artvista.Backend.dto.LoginRequest;
 import com.artvista.artvista.Backend.dto.UpdateEventRegistrationStatusRequest;
 import com.artvista.artvista.Backend.dto.UpdateOrderStatusRequest;
 import com.artvista.artvista.Backend.model.EventRegistration;
@@ -18,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -35,16 +36,8 @@ public class AdminController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<Boolean>> login(@RequestBody Map<String, String> payload) {
-        String email = payload.get("email");
-        String password = payload.get("password");
-        boolean isAdmin = adminService.isAdmin(email, password);
-
-        if (!isAdmin) {
-            throw new IllegalArgumentException("Invalid admin credentials");
-        }
-
-        return ResponseEntity.ok(ApiResponse.success("Admin login successful", true));
+    public ResponseEntity<ApiResponse<Object>> login(@RequestBody LoginRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("Admin login successful", adminService.login(request)));
     }
 
     @GetMapping("/orders")

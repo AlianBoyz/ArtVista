@@ -35,8 +35,6 @@ public class Artist {
             createdAt = LocalDateTime.now();
         }
     }
-
-
     public Artist(){}
 
     public Artist(Long id, String name, String bio, String profileImage, LocalDateTime createdAt) {
