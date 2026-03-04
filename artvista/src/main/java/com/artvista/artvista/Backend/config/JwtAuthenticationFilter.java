@@ -54,6 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Claims claims = jwtUtil.getAllClaimsFromToken(jwtToken);
         String role = claims.get("role", String.class);
         boolean isAdminToken = "ADMIN".equalsIgnoreCase(role);
+        Number tokenUserId = claims.get("userId", Number.class);
 
         if (requestUri.startsWith("/api/admin/") && !requestUri.equals("/api/admin/login")) {
             if (!isAdminToken) {
@@ -68,6 +69,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Make authenticated user available to downstream handlers if needed.
         request.setAttribute("authenticatedEmail", userEmail);
         request.setAttribute("authenticatedRole", isAdminToken ? "ADMIN" : "USER");
+        if (tokenUserId != null) {
+            request.setAttribute("authenticatedUserId", tokenUserId.longValue());
+        }
 
         filterChain.doFilter(request, response);
     }

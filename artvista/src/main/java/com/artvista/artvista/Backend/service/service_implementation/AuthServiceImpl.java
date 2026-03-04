@@ -10,6 +10,8 @@ import com.artvista.artvista.Backend.util.JwtUtil;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
+
 @Service
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
@@ -46,7 +48,11 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()));
 
         User savedUser = userRepository.save(user);
-        String token = jwtUtil.generateToken(savedUser.getEmail());
+        String token = jwtUtil.generateToken(savedUser.getEmail(), Map.of(
+                "userId", savedUser.getId(),
+                "email", savedUser.getEmail(),
+                "role", "USER"
+        ));
 
         return new AuthResponse(token, savedUser.getId(), savedUser.getName(), savedUser.getEmail());
     }
@@ -67,7 +73,11 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("Invalid email or password");
         }
 
-        String token = jwtUtil.generateToken(user.getEmail());
+        String token = jwtUtil.generateToken(user.getEmail(), Map.of(
+                "userId", user.getId(),
+                "email", user.getEmail(),
+                "role", "USER"
+        ));
         return new AuthResponse(token, user.getId(), user.getName(), user.getEmail());
     }
 }

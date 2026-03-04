@@ -4,6 +4,7 @@ import com.artvista.artvista.Backend.dto.CheckoutRequest;
 import com.artvista.artvista.Backend.model.Order;
 import com.artvista.artvista.Backend.service.OrderService;
 import com.artvista.artvista.Backend.util.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,13 +43,22 @@ public class OrderController {
         return ResponseEntity.ok(ApiResponse.success("Orders fetched successfully", orderService.getAllOrders()));
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse<List<Order>>> getOrdersByUser(@PathVariable Long userId) {
+    @GetMapping("/my-orders")
+    public ResponseEntity<ApiResponse<List<Order>>> getMyOrders(HttpServletRequest request) {
+        Long userId = getAuthenticatedUserId(request);
         return ResponseEntity.ok(ApiResponse.success("User orders fetched successfully", orderService.getOrdersByUser(userId)));
     }
 
     @GetMapping("/{orderId}")
     public ResponseEntity<ApiResponse<Order>> getOrderById(@PathVariable Long orderId) {
         return ResponseEntity.ok(ApiResponse.success("Order fetched successfully", orderService.getOrderById(orderId)));
+    }
+
+    private Long getAuthenticatedUserId(HttpServletRequest request) {
+        Object value = request.getAttribute("authenticatedUserId");
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
+        throw new IllegalArgumentException("Authenticated user id not found in token");
     }
 }

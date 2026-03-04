@@ -47,7 +47,7 @@ public class ArtistController {
         return ResponseEntity.ok(ApiResponse.success("Artist added successfully", artistService.addArtist(artist)));
     }
 
-    @GetMapping
+    @GetMapping("/api/artists")
     public ResponseEntity<ApiResponse<List<Artist>>> getAllArtists() {
         return ResponseEntity.ok(ApiResponse.success("Artists fetched successfully", artistService.getAllArtists()));
     }

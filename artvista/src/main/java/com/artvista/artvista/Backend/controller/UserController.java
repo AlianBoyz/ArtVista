@@ -4,6 +4,7 @@ import com.artvista.artvista.Backend.dto.UpdateAddressRequest;
 import com.artvista.artvista.Backend.model.User;
 import com.artvista.artvista.Backend.service.UserService;
 import com.artvista.artvista.Backend.util.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,19 +30,31 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("Users fetched successfully", userService.getAllUsers()));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<User>> getUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success("User fetched successfully", userService.getUserById(id)));
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<User>> getMyProfile(HttpServletRequest request) {
+        Long userId = getAuthenticatedUserId(request);
+        return ResponseEntity.ok(ApiResponse.success("User fetched successfully", userService.getUserById(userId)));
     }
 
-    @PutMapping("/{id}/address")
-    public ResponseEntity<ApiResponse<User>> updateAddress(@PathVariable Long id, @RequestBody UpdateAddressRequest request) {
-        return ResponseEntity.ok(ApiResponse.success("Address updated successfully", userService.updateAddress(id, request)));
+    @PutMapping("/me/address")
+    public ResponseEntity<ApiResponse<User>> updateMyAddress(
+            @RequestBody UpdateAddressRequest requestBody,
+            HttpServletRequest request) {
+        Long userId = getAuthenticatedUserId(request);
+        return ResponseEntity.ok(ApiResponse.success("Address updated successfully", userService.updateAddress(userId, requestBody)));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.ok(ApiResponse.success("User deleted successfully", null));
+    }
+
+    private Long getAuthenticatedUserId(HttpServletRequest request) {
+        Object value = request.getAttribute("authenticatedUserId");
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
+        throw new IllegalArgumentException("Authenticated user id not found in token");
     }
 }

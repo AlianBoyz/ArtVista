@@ -5,9 +5,9 @@ import com.artvista.artvista.Backend.model.Cart;
 import com.artvista.artvista.Backend.model.CartItem;
 import com.artvista.artvista.Backend.service.CartService;
 import com.artvista.artvista.Backend.util.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,8 +22,9 @@ public class CartController {
         this.cartService = cartService;
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse<Cart>> getCartByUserId(@PathVariable Long userId) {
+    @GetMapping("/my-cart")
+    public ResponseEntity<ApiResponse<Cart>> getMyCart(HttpServletRequest request) {
+        Long userId = getAuthenticatedUserId(request);
         return ResponseEntity.ok(ApiResponse.success("Cart fetched successfully", cartService.getCartByUserId(userId)));
     }
 
@@ -36,5 +37,13 @@ public class CartController {
     public ResponseEntity<ApiResponse<CartItem>> addPaintingToCart(@RequestBody AddCartItemRequest request) {
         CartItem item = cartService.addPaintingToCart(request.getUserId(), request.getPaintingId(), request.getQuantity());
         return ResponseEntity.ok(ApiResponse.success("Painting added to cart successfully", item));
+    }
+
+    private Long getAuthenticatedUserId(HttpServletRequest request) {
+        Object value = request.getAttribute("authenticatedUserId");
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
+        throw new IllegalArgumentException("Authenticated user id not found in token");
     }
 }
