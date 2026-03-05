@@ -16,7 +16,6 @@ public class AuthResponse {
         this.name = name;
         this.email = email;
     }
-
     public String getToken() {
         return token;
     }
