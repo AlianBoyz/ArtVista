@@ -1,0 +1,120 @@
+.admin-sidebar {
+  position: sticky;
+  top: 102px;
+  border-radius: 32px;
+  padding: 18px 16px 20px;
+  background: rgba(248, 248, 248, 0.9);
+  box-shadow: 0 18px 30px rgba(108, 113, 138, 0.22);
+  backdrop-filter: blur(12px);
+}
+
+.admin-sidebar__profile {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 22px;
+  padding: 18px 18px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #b866ad, #bb72b6);
+  color: #15151f;
+  box-shadow: 0 14px 24px rgba(91, 51, 87, 0.22);
+}
+
+.admin-sidebar__avatar {
+  display: grid;
+  width: 68px;
+  height: 68px;
+  place-items: center;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffe070, #ffd16f);
+  color: #222;
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.admin-sidebar__label {
+  margin: 0 0 6px;
+  color: rgba(21, 21, 31, 0.72);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-sidebar__profile h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.admin-sidebar__meta {
+  display: inline-block;
+  margin-top: 4px;
+  color: rgba(21, 21, 31, 0.72);
+  font-size: 0.95rem;
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.admin-sidebar__nav {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  color: #15151f;
+  font-size: 1.35rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-sidebar__link:hover {
+  background: rgba(178, 167, 243, 0.16);
+  transform: translateX(2px);
+}
+
+.admin-sidebar__link.is-active {
+  background: linear-gradient(135deg, #9791ea, #9f98ef);
+  box-shadow: 0 10px 18px rgba(97, 86, 196, 0.18);
+}
+
+.admin-sidebar__icon {
+  display: inline-flex;
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.admin-sidebar__icon svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (max-width: 1080px) {
+  .admin-sidebar {
+    position: static;
+    top: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-sidebar__link {
+    font-size: 1.05rem;
+  }
+
+  .admin-sidebar__profile h2 {
+    font-size: 1.4rem;
+  }
+}

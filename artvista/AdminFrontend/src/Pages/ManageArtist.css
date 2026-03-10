@@ -1,0 +1,284 @@
+.artists-page {
+  display: grid;
+  gap: 22px;
+}
+
+.artists-header h1 {
+  margin: 0;
+  font-size: clamp(2.4rem, 4vw, 3.4rem);
+  color: #0f1320;
+}
+
+.artists-searchRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 22px;
+}
+
+.artists-search {
+  position: relative;
+  width: min(100%, 420px);
+}
+
+.artists-search input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 14px 48px 14px 16px;
+  border: 1px solid #675ed9;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+}
+
+.artists-search__icon {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  width: 20px;
+  height: 20px;
+  transform: translateY(-50%);
+  color: #2d2d38;
+}
+
+.artists-search__icon svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.artists-addButton {
+  min-width: 138px;
+  border: 1px solid #8f2e74;
+  background: rgba(255, 255, 255, 0.9);
+  color: #8f2e74;
+}
+
+.artists-addButton:hover {
+  border-color: #8f2e74;
+  background: #8f2e74;
+  color: #ffffff;
+}
+
+.artists-tableWrap {
+  overflow: hidden;
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 18px 34px rgba(112, 117, 138, 0.2);
+}
+
+.artists-tableHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) 240px;
+  gap: 20px;
+  padding: 28px 28px 20px;
+  border-bottom: 1px solid rgba(23, 24, 32, 0.12);
+  color: #15151f;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.artists-tableBody {
+  padding: 18px 28px 28px;
+}
+
+.artists-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) 240px;
+  gap: 20px;
+  align-items: center;
+  padding: 18px 0;
+}
+
+.artists-row + .artists-row {
+  border-top: 1px solid rgba(23, 24, 32, 0.08);
+}
+
+.artists-row__main {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 22px;
+  align-items: center;
+}
+
+.artists-row__image {
+  width: 112px;
+  height: 112px;
+  object-fit: cover;
+  border-radius: 999px;
+  background: #e7efff;
+}
+
+.artists-row__copy h3 {
+  margin: 0;
+  color: #1a1a21;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.artists-row__details {
+  color: #353542;
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
+.artists-row__actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.artists-row__edit {
+  min-width: 110px;
+}
+
+.artists-row__delete {
+  min-width: 110px;
+  border: 1px solid #8f2e74;
+  background: rgba(255, 255, 255, 0.95);
+  color: #8f2e74;
+}
+
+.artists-row__delete:hover {
+  border-color: #8f2e74;
+  background: #8f2e74;
+  color: #ffffff;
+}
+
+.artists-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.artists-modal__panel {
+  box-sizing: border-box;
+  width: min(520px, calc(100vw - 40px));
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  border-radius: 20px;
+  background: #ffffff;
+  padding: clamp(18px, 3vw, 24px);
+}
+
+.artists-modal__panel h2 {
+  margin-top: 0;
+}
+
+.artists-modal__form {
+  display: grid;
+  gap: 14px;
+}
+
+.artists-modal__input,
+.artists-modal__textarea {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d4d7e2;
+  border-radius: 12px;
+  background: #f8f9fd;
+  font-size: 0.96rem;
+  color: #1a1a21;
+}
+
+.artists-modal__textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.artists-modal__input:focus,
+.artists-modal__textarea:focus {
+  outline: none;
+  border-color: #675ed9;
+  box-shadow: 0 0 0 3px rgba(103, 94, 217, 0.14);
+}
+
+.artists-modal__file {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px dashed #b7bdd6;
+  border-radius: 12px;
+  background: #f8f9fd;
+  color: #4a4d5c;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.artists-modal__file input {
+  display: none;
+}
+
+.artists-modal__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1080px) {
+  .artists-tableHeader,
+  .artists-row {
+    grid-template-columns: 1fr;
+  }
+
+  .artists-tableHeader {
+    display: none;
+  }
+
+  .artists-row {
+    gap: 14px;
+  }
+
+  .artists-row__details::before {
+    content: "Details: ";
+    font-weight: 700;
+  }
+}
+
+@media (max-width: 720px) {
+  .artists-searchRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .artists-search {
+    width: 100%;
+  }
+
+  .artists-row__main {
+    grid-template-columns: 1fr;
+  }
+
+  .artists-row__image {
+    width: 128px;
+    height: 128px;
+  }
+
+  .artists-row__actions {
+    flex-wrap: wrap;
+  }
+
+  .artists-modal {
+    padding: 12px;
+  }
+
+  .artists-modal__panel {
+    width: calc(100vw - 24px);
+    max-height: calc(100vh - 24px);
+    padding: 18px;
+  }
+}

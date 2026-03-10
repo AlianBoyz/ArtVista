@@ -1,33 +1,35 @@
 import React, { useState } from "react";
 import Sidebar from "./Sidebar";
+import "./AdminWrapper.css";
 
 const AdminWrapper = ({ children }) => {
-
   const [open, setOpen] = useState(true);
 
   return (
-    <div style={{ display: "flex" }}>
+    <div className="admin-shell">
+      <header className="admin-shell__header">
+        <div className="admin-brand">
+          <div className="admin-brand__avatar">A</div>
+          <span>ArtVista</span>
+        </div>
 
-      {/* Main Page */}
-      <div style={{ flex: 1, padding: "20px" }}>
-        {children}
-      </div>
+        <div className="admin-shell__title">ADMIN IN</div>
 
-      {/* Sidebar */}
-      {open && <Sidebar />}
+        <button
+          className="admin-shell__toggle"
+          onClick={() => setOpen(!open)}
+          type="button"
+        >
+          {open ? "Hide Menu" : "Show Menu"}
+        </button>
+      </header>
 
-      {/* Collapse Button */}
-      <button
-        onClick={() => setOpen(!open)}
-        style={{
-          position: "fixed",
-          right: open ? "220px" : "0px",
-          top: "20px"
-        }}
-      >
-        {open ? "Close" : "Open"}
-      </button>
-
+      <main className={`admin-shell__body${open ? "" : " is-sidebar-hidden"}`}>
+        <div className={`admin-shell__sidebarSlot${open ? "" : " is-hidden"}`}>
+          <Sidebar />
+        </div>
+        <div className="admin-shell__content">{children}</div>
+      </main>
     </div>
   );
 };

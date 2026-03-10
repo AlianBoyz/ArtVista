@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./Login.css";
 
 const API = import.meta.env.VITE_BASE_URL;
 
 const Login = () => {
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -14,96 +14,126 @@ const Login = () => {
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-
     e.preventDefault();
 
     try {
-
       const response = await fetch(`${API}/admin/login`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email,
-          password
-        })
+          password,
+        }),
       });
 
       const result = await response.json();
 
       if (result.success) {
-
         setMessage(result.message);
         setError(false);
-
         localStorage.setItem("token", result.data.token);
-
+        localStorage.setItem("adminEmail", result.data.email || email);
         navigate("/admin/dashboard");
-
       } else {
-
         setMessage(result.message || "Login Failed");
         setError(true);
-
       }
-
     } catch (error) {
-
       setMessage("Server Error. Please try again.");
       setError(true);
-
     }
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "100px" }}>
-      <h2>Admin Login</h2>
-
-      <form onSubmit={handleLogin}>
-
-        <input
-          type="email"
-          placeholder="Enter Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <br /><br />
-
-        <div>
-
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder="Enter Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            style={{ marginLeft: "10px" }}
-          >
-            {showPassword ? "Hide" : "Show"}
-          </button>
-
+    <div className="login-page">
+      <section className="login-visual" aria-hidden="true">
+        <div className="login-visual__overlay">
+          <p className="login-visual__eyebrow">Curated Admin Access</p>
+          <h1>ArtVista</h1>
+          <p className="login-visual__text">
+            Manage exhibitions, paintings, artists, and orders from one
+            workspace.
+          </p>
         </div>
+      </section>
 
-        <br /><br />
+      <section className="login-panel">
+        <div className="login-panel__content">
+          <div className="login-copy">
+            <p className="login-copy__lead">Sign in to</p>
+            <h2>ArtVista</h2>
+          </div>
 
-        <button type="submit">
-          Login
-        </button>
+          <form className="login-form" onSubmit={handleLogin}>
+            <label className="login-field">
+              <span className="sr-only">Email</span>
+              <input
+                type="email"
+                placeholder="Enter email or user name"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </label>
 
-      </form>
+            <label className="login-field login-field--password">
+              <span className="sr-only">Password</span>
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </label>
 
-      {message && (
-        <p style={{ color: isError ? "red" : "green", marginTop: "15px" }}>
-          {message}
-        </p>
-      )}
+            <button
+              className="login-password-toggle"
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
 
+            <a className="login-forgot" href="/">
+              Forgot password?
+            </a>
+
+            <button className="login-submit" type="submit">
+              Login
+            </button>
+          </form>
+
+          {message && (
+            <p className={`login-message ${isError ? "is-error" : "is-success"}`}>
+              {message}
+            </p>
+          )}
+
+          <div className="login-divider">or continue with</div>
+
+          <div className="login-socials" aria-label="Social sign in options">
+            <button className="social-button social-button--facebook" type="button">
+              f
+            </button>
+            <button className="social-button social-button--apple" type="button">
+              Apple
+            </button>
+            <button className="social-button social-button--google" type="button">
+              G
+            </button>
+          </div>
+
+          <p className="login-register">
+            If you don&apos;t have an account register
+            <br />
+            You can <a href="/">Register here !</a>
+          </p>
+        </div>
+      </section>
     </div>
   );
 };

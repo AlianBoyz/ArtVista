@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
+import "./ManageEvents.css";
 
 const url = import.meta.env.VITE_BASE_URL;
 const imageUrl = import.meta.env.VITE_IMAGE_BASE_URL;
 
 const ManageEvents = () => {
-
   const [events, setEvents] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -24,23 +24,18 @@ const ManageEvents = () => {
   }, []);
 
   const fetchEvents = async () => {
-
     const response = await fetch(`${url}/events`, {
       headers: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     const data = await response.json();
-
     setEvents(data.data);
-
   };
 
   const openAddModal = () => {
-
     setEditId(null);
-
     setTitle("");
     setDescription("");
     setPrice("");
@@ -49,15 +44,11 @@ const ManageEvents = () => {
     setEventDate("");
     setArtistId("");
     setImage(null);
-
     setShowModal(true);
-
   };
 
   const handleEdit = (event) => {
-
     setEditId(event.id);
-
     setTitle(event.title);
     setDescription(event.description);
     setPrice(event.price);
@@ -65,34 +56,27 @@ const ManageEvents = () => {
     setDuration(event.duration);
     setEventDate(event.eventDate);
     setArtistId(event.artist?.id);
-
     setShowModal(true);
-
   };
 
   const handleDelete = async (id) => {
-
     const confirmDelete = window.confirm("Delete this event?");
-
     if (!confirmDelete) return;
 
     await fetch(`${url}/events/${id}`, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     fetchEvents();
-
   };
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
     const formData = new FormData();
-
     formData.append("title", title);
     formData.append("description", description);
     formData.append("price", price);
@@ -114,201 +98,183 @@ const ManageEvents = () => {
     }
 
     const response = await fetch(endpoint, {
-      method: method,
+      method,
       headers: {
-        Authorization: `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
-      body: formData
+      body: formData,
     });
 
     if (response.ok) {
-
       setShowModal(false);
       setEditId(null);
-
       fetchEvents();
-
     }
+  };
 
+  const formatDate = (value) => {
+    if (!value) return "";
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "2-digit",
+    });
   };
 
   return (
-    <div>
+    <div className="events-page">
+      <section className="events-header">
+        <h1>Event Management</h1>
 
-      <h1>Manage Events</h1>
+        <div className="events-searchRow">
+          <div className="events-search">
+            <input type="text" placeholder="Value" />
+            <span className="events-search__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20 20-3.5-3.5" />
+              </svg>
+            </span>
+          </div>
 
-      <button onClick={openAddModal}>
-        Add Event
-      </button>
+          <button className="events-addButton" onClick={openAddModal}>
+            Add Event
+          </button>
+        </div>
+      </section>
 
       {showModal && (
-
-        <div style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          background: "rgba(0,0,0,0.5)",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center"
-        }}>
-
-          <div style={{
-            background: "white",
-            padding: "20px",
-            width: "400px"
-          }}>
-
+        <div className="events-modal">
+          <div className="events-modal__panel">
             <h2>{editId ? "Edit Event" : "Add Event"}</h2>
 
-            <form onSubmit={handleSubmit}>
-
+            <form className="events-modal__form" onSubmit={handleSubmit}>
               <input
+                className="events-modal__input"
                 type="text"
                 placeholder="Title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
 
-              <br /><br />
-
               <input
+                className="events-modal__input"
                 type="text"
                 placeholder="Description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
 
-              <br /><br />
+              <div className="events-modal__grid">
+                <input
+                  className="events-modal__input"
+                  type="number"
+                  placeholder="Price"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                />
 
-              <input
-                type="number"
-                placeholder="Price"
-                value={price}
-                onChange={(e) => setPrice(e.target.value)}
-              />
+                <input
+                  className="events-modal__input"
+                  type="text"
+                  placeholder="Location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
 
-              <br /><br />
+                <input
+                  className="events-modal__input"
+                  type="text"
+                  placeholder="Duration"
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                />
 
-              <input
-                type="text"
-                placeholder="Location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-              />
+                <input
+                  className="events-modal__input"
+                  type="date"
+                  value={eventDate}
+                  onChange={(e) => setEventDate(e.target.value)}
+                />
 
-              <br /><br />
+                <input
+                  className="events-modal__input"
+                  type="number"
+                  placeholder="Artist Id"
+                  value={artistId}
+                  onChange={(e) => setArtistId(e.target.value)}
+                />
+              </div>
 
-              <input
-                type="text"
-                placeholder="Duration"
-                value={duration}
-                onChange={(e) => setDuration(e.target.value)}
-              />
+              <label className="events-modal__file">
+                <span>{image ? image.name : "Choose image"}</span>
+                <input
+                  type="file"
+                  onChange={(e) => setImage(e.target.files[0])}
+                />
+              </label>
 
-              <br /><br />
-
-              <input
-                type="date"
-                value={eventDate}
-                onChange={(e) => setEventDate(e.target.value)}
-              />
-
-              <br /><br />
-
-              <input
-                type="number"
-                placeholder="Artist Id"
-                value={artistId}
-                onChange={(e) => setArtistId(e.target.value)}
-              />
-
-              <br /><br />
-
-              <input
-                type="file"
-                onChange={(e) => setImage(e.target.files[0])}
-              />
-
-              <br /><br />
-
-              <button type="submit">
-                {editId ? "Update" : "Add"}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-              >
-                Cancel
-              </button>
-
+              <div className="events-modal__actions">
+                <button type="submit">{editId ? "Update" : "Add"}</button>
+                <button type="button" onClick={() => setShowModal(false)}>
+                  Cancel
+                </button>
+              </div>
             </form>
-
           </div>
-
         </div>
-
       )}
 
-      <div style={{
-        display: "flex",
-        gap: "20px",
-        flexWrap: "wrap",
-        marginTop: "20px"
-      }}>
+      <section className="events-tableWrap">
+        <div className="events-tableHeader">
+          <span>Events</span>
+          <span>Date</span>
+          <span>Actions</span>
+        </div>
 
-        {events.map((e) => (
+        <div className="events-tableBody">
+          {events.map((event) => (
+            <article className="events-row" key={event.id}>
+              <div className="events-row__main">
+                <img
+                  src={`${imageUrl}${event.imageUrl}`}
+                  alt={event.title}
+                  className="events-row__image"
+                />
 
-          <div
-            key={e.id}
-            style={{
-              width: "250px",
-              border: "1px solid gray",
-              padding: "10px"
-            }}
-          >
+                <div className="events-row__copy">
+                  <h3>{event.title}</h3>
+                  <p>{event.description}</p>
+                </div>
+              </div>
 
-            <img
-              src={`${imageUrl}${e.imageUrl}`}
-              alt={e.title}
-              style={{ width: "100%" }}
-            />
+              <div className="events-row__date">{formatDate(event.eventDate)}</div>
 
-            <h3>{e.title}</h3>
+              <div className="events-row__actions">
+                <button
+                  className="events-row__edit"
+                  onClick={() => handleEdit(event)}
+                >
+                  Edit
+                </button>
 
-            <p>by {e.artist?.name}</p>
-
-            <p>Location: {e.location}</p>
-
-            <p>Date: {e.eventDate}</p>
-
-            <p>Price: ₹{e.price}</p>
-
-            <br />
-
-            <button onClick={() => handleEdit(e)}>
-              Edit
-            </button>
-
-            <button
-              style={{ marginLeft: "10px" }}
-              onClick={() => handleDelete(e.id)}
-            >
-              Delete
-            </button>
-
-          </div>
-
-        ))}
-
-      </div>
-
+                <button
+                  className="events-row__delete"
+                  onClick={() => handleDelete(event.id)}
+                >
+                  Delete
+                </button>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
     </div>
   );
-
 };
 
 export default ManageEvents;
