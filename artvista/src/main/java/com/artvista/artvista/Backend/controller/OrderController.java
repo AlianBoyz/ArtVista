@@ -32,8 +32,8 @@ public class OrderController {
     @PostMapping("/checkout")
     public ResponseEntity<ApiResponse<Order>> checkout(@RequestBody CheckoutRequest request) {
         Order.PaymentType paymentType = request.getPaymentType() == null || request.getPaymentType().isBlank()
-                ? Order.PaymentType.COD
-                : Order.PaymentType.valueOf(request.getPaymentType().toUpperCase());
+                ? Order.PaymentType.COD :
+                Order.PaymentType.valueOf(request.getPaymentType().toUpperCase());
         Order order = orderService.checkoutFromCart(request.getUserId(), paymentType, request.getPaymentId());
         return ResponseEntity.ok(ApiResponse.success("Checkout completed successfully", order));
     }

@@ -33,14 +33,14 @@ public class webConfig implements WebMvcConfigurer {
                 .exposedHeaders("Authorization")
                 .allowCredentials(true);
     }
-    @Bean
-    public FilterRegistrationBean<JwtAuthenticationFilter> jwtFilterRegistration() {
-        FilterRegistrationBean<JwtAuthenticationFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(jwtAuthenticationFilter);
-        registration.addUrlPatterns("/api/*");
-        registration.setOrder(1);
-        return registration;
-    }
+    // @Bean
+    // public FilterRegistrationBean<JwtAuthenticationFilter> jwtFilterRegistration() {
+    //     FilterRegistrationBean<JwtAuthenticationFilter> registration = new FilterRegistrationBean<>();
+    //     registration.setFilter(jwtAuthenticationFilter);
+    //     registration.addUrlPatterns("/api/*");
+    //     registration.setOrder(1);
+    //     return registration;
+    // }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {

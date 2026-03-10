@@ -30,10 +30,6 @@ public class ArtistController {
         this.fileStorageService = fileStorageService;
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ApiResponse<Artist>> addArtist(@RequestBody Artist artist) {
-        return ResponseEntity.ok(ApiResponse.success("Artist added successfully", artistService.addArtist(artist)));
-    }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<Artist>> addArtistMultipart(
@@ -47,7 +43,7 @@ public class ArtistController {
         return ResponseEntity.ok(ApiResponse.success("Artist added successfully", artistService.addArtist(artist)));
     }
 
-    @GetMapping("/api/artists")
+    @GetMapping
     public ResponseEntity<ApiResponse<List<Artist>>> getAllArtists() {
         return ResponseEntity.ok(ApiResponse.success("Artists fetched successfully", artistService.getAllArtists()));
     }

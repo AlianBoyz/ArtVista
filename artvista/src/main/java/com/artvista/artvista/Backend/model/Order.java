@@ -32,7 +32,7 @@ public class Order {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false)
-    private OrderStatus orrderStatus;
+    private OrderStatus orrderStatus=OrderStatus.PENDING;
     // Many Orders → One User
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -52,6 +52,7 @@ public class Order {
     public enum OrderStatus{
         ACCEPT,
         REJECT,
+        PENDING,
         INTRANSIT,
         DELIVERED
     }

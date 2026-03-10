@@ -59,7 +59,7 @@ public class OrderServiceImpl implements OrderService {
         order.setUser(user);
         order.setPaymentType(paymentType == null ? Order.PaymentType.COD : paymentType);
         order.setPaymentId(paymentId);
-        order.setOrrderStatus(Order.OrderStatus.ACCEPT);
+        order.setOrrderStatus(Order.OrderStatus.PENDING);
 
         List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;
