@@ -69,7 +69,7 @@ const navItems = [
 const Sidebar = () => {
   const adminName = localStorage.getItem("adminName") || "Admin";
   const adminEmail = localStorage.getItem("adminEmail") || "";
-  const avatarLetter = adminName.trim().charAt(0).toUpperCase() || "A";
+  const avatarLetter = adminEmail.trim().charAt(0).toUpperCase();
 
   return (
     <aside className="admin-sidebar">
