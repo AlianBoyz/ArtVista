@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,10 +37,8 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.success("User fetched successfully", userService.getUserById(userId)));
     }
 
-    @PutMapping("/me/address")
-    public ResponseEntity<ApiResponse<User>> updateMyAddress(
-            @RequestBody UpdateAddressRequest requestBody,
-            HttpServletRequest request) {
+    @PatchMapping("/me/address")
+    public ResponseEntity<ApiResponse<User>> updateMyAddress( @RequestBody UpdateAddressRequest requestBody, HttpServletRequest request) {
         Long userId = getAuthenticatedUserId(request);
         return ResponseEntity.ok(ApiResponse.success("Address updated successfully", userService.updateAddress(userId, requestBody)));
     }

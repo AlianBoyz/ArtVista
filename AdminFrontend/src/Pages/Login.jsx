@@ -113,25 +113,6 @@ const Login = () => {
             </p>
           )}
 
-          <div className="login-divider">or continue with</div>
-
-          <div className="login-socials" aria-label="Social sign in options">
-            <button className="social-button social-button--facebook" type="button">
-              f
-            </button>
-            <button className="social-button social-button--apple" type="button">
-              Apple
-            </button>
-            <button className="social-button social-button--google" type="button">
-              G
-            </button>
-          </div>
-
-          <p className="login-register">
-            If you don&apos;t have an account register
-            <br />
-            You can <a href="/">Register here !</a>
-          </p>
         </div>
       </section>
     </div>

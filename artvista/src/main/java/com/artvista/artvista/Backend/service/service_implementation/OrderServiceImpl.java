@@ -55,7 +55,7 @@ public class OrderServiceImpl implements OrderService {
             throw new IllegalArgumentException("Cart is empty");
         }
 
-        Order order = new Order();
+        Order order = new Order(); 
         order.setUser(user);
         order.setPaymentType(paymentType == null ? Order.PaymentType.COD : paymentType);
         order.setPaymentId(paymentId);

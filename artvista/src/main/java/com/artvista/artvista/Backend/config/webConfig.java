@@ -24,22 +24,25 @@ public class webConfig implements WebMvcConfigurer {
     }
 
     @Override
-    public void addCorsMappings(CorsRegistry registry) 
-    {
+    public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:5173")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedOrigins(
+                        "http://localhost:5173",
+                        "http://localhost:5174")
+                .allowedMethods("GET", "POST", "PUT","PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .exposedHeaders("Authorization")
                 .allowCredentials(true);
     }
     // @Bean
-    // public FilterRegistrationBean<JwtAuthenticationFilter> jwtFilterRegistration() {
-    //     FilterRegistrationBean<JwtAuthenticationFilter> registration = new FilterRegistrationBean<>();
-    //     registration.setFilter(jwtAuthenticationFilter);
-    //     registration.addUrlPatterns("/api/*");
-    //     registration.setOrder(1);
-    //     return registration;
+    // public FilterRegistrationBean<JwtAuthenticationFilter>
+    // jwtFilterRegistration() {
+    // FilterRegistrationBean<JwtAuthenticationFilter> registration = new
+    // FilterRegistrationBean<>();
+    // registration.setFilter(jwtAuthenticationFilter);
+    // registration.addUrlPatterns("/api/*");
+    // registration.setOrder(1);
+    // return registration;
     // }
 
     @Override

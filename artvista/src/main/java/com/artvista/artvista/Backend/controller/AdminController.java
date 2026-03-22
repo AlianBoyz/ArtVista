@@ -1,5 +1,4 @@
 package com.artvista.artvista.Backend.controller;
-
 import com.artvista.artvista.Backend.dto.AuthResponse;
 import com.artvista.artvista.Backend.dto.LoginRequest;
 import com.artvista.artvista.Backend.dto.UpdateEventRegistrationStatusRequest;
