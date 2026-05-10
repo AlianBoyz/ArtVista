@@ -26,16 +26,36 @@ public class EventRegistrationServiceImpl implements EventRegistrationService {
     }
 
     @Override
-    public EventRegistration registerForEvent(Long userId, Long eventId) {
+    public EventRegistration registerForEvent(Long userId, Long eventId, String paymentType, String paymentId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("Event not found with id: " + eventId));
 
+        if (eventRegistrationRepository.findByUser_IdAndEvent_Id(userId, eventId).isPresent()) {
+            throw new RuntimeException("User is already registered for this event");
+        }
+
+        // Robust null check and initialization for availableSeats
+        Integer available = event.getAvailableSeats();
+        if (available == null) {
+            available = event.getTotalSeats() != null ? event.getTotalSeats() : 0;
+            event.setAvailableSeats(available);
+        }
+
+        if (available <= 0) {
+            throw new RuntimeException("No seats available for this event");
+        }
+
+        event.setAvailableSeats(available - 1);
+        eventRepository.save(event);
+
         EventRegistration registration = new EventRegistration();
         registration.setUser(user);
         registration.setEvent(event);
         registration.setStatus(EventRegistration.RegistrationStatus.ACCEPT);
+        registration.setPaymentType(paymentType);
+        registration.setPaymentId(paymentId);
         return eventRegistrationRepository.save(registration);
     }
 
@@ -65,5 +85,10 @@ public class EventRegistrationServiceImpl implements EventRegistrationService {
         EventRegistration registration = getRegistrationById(registrationId);
         registration.setStatus(status);
         return eventRegistrationRepository.save(registration);
+    }
+
+    @Override
+    public boolean isUserRegistered(Long userId, Long eventId) {
+        return eventRegistrationRepository.findByUser_IdAndEvent_Id(userId, eventId).isPresent();
     }
 }

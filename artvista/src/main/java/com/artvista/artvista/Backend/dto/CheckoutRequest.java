@@ -4,6 +4,7 @@ public class CheckoutRequest {
     private Long userId;
     private String paymentType;
     private String paymentId;
+    private Long paintingId;
 
     public Long getUserId() {
         return userId;
@@ -27,5 +28,13 @@ public class CheckoutRequest {
 
     public void setPaymentId(String paymentId) {
         this.paymentId = paymentId;
+    }
+
+    public Long getPaintingId() {
+        return paintingId;
+    }
+
+    public void setPaintingId(Long paintingId) {
+        this.paintingId = paintingId;
     }
 }

@@ -34,7 +34,7 @@ public class OrderController {
         Order.PaymentType paymentType = request.getPaymentType() == null || request.getPaymentType().isBlank()
                 ? Order.PaymentType.COD :
                 Order.PaymentType.valueOf(request.getPaymentType().toUpperCase());
-        Order order = orderService.checkoutFromCart(request.getUserId(), paymentType, request.getPaymentId());
+        Order order = orderService.checkout(request.getUserId(), paymentType, request.getPaymentId(), request.getPaintingId());
         return ResponseEntity.ok(ApiResponse.success("Checkout completed successfully", order));
     }
 

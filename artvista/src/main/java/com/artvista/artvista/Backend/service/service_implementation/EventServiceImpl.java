@@ -19,6 +19,9 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Event addEvent(Event event) {
+        if (event.getAvailableSeats() == null || event.getAvailableSeats() == 0) {
+            event.setAvailableSeats(event.getTotalSeats());
+        }
         return eventRepository.save(event);
     }
 
@@ -33,6 +36,14 @@ public class EventServiceImpl implements EventService {
         existing.setEventDate(event.getEventDate());
         existing.setImageUrl(event.getImageUrl());
         existing.setArtist(event.getArtist());
+        
+        // Update available seats if total seats changed
+        if (event.getTotalSeats() != null && !event.getTotalSeats().equals(existing.getTotalSeats())) {
+            int difference = event.getTotalSeats() - existing.getTotalSeats();
+            existing.setTotalSeats(event.getTotalSeats());
+            existing.setAvailableSeats(Math.max(0, existing.getAvailableSeats() + difference));
+        }
+        
         return eventRepository.save(existing);
     }
 

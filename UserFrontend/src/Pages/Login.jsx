@@ -103,8 +103,12 @@
 // }
 
 import { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../Context/AuthProvider";
+import { jwtDecode } from "jwt-decode";
+import "./AuthPages.css";
+
+const loginArt = "/artvista-auth/login-art.png";
 
 const API = import.meta.env.VITE_BASE_URL;
 
@@ -144,10 +148,16 @@ export default function UserLogin() {
         const token = result.data.token;
         const userId = result.data.userId;
 
-        login(token);  
-        localStorage.setItem("userId", userId);
- 
-        navigate("/home");
+        login(token, userId);  
+        
+        const decoded = jwtDecode(token);
+        if (decoded.role === "ADMIN") {
+          localStorage.setItem("adminName", result.data.name || "Admin");
+          localStorage.setItem("adminEmail", result.data.email || "");
+          navigate("/admin/dashboard");
+        } else {
+          navigate("/home");
+        }
 
       } else {
         setMessage(result.message);
@@ -159,55 +169,75 @@ export default function UserLogin() {
   };
 
   return (
+    <div className="artvista-page auth-page">
+      <section className="auth-art">
+        <img src={loginArt} alt="Colorful gallery artwork" />
+      </section>
 
-    <div style={{ textAlign: "center", marginTop: "120px" }}>
+      <section className="auth-panel">
+        <div className="auth-card">
+          <h1>Sign in to</h1>
+          <h2>ArtVista</h2>
 
-      <h2>User Login</h2>
+          <form className="auth-form" onSubmit={handleLogin}>
+            <label>
+              <span>Email or username</span>
+              <input
+                type="email"
+                placeholder="Enter email or user name"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </label>
 
-      <form onSubmit={handleLogin}>
+            <label>
+              <span>Password</span>
+              <div className="password-field">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+            </label>
 
-        <input
-          type="email"
-          placeholder="Enter email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+            <a className="forgot-link" href="#forgot-password">
+              Forgot password?
+            </a>
 
-        <br /><br />
+            <button className="primary-action indigo auth-submit" type="submit">
+              Login
+            </button>
+          </form>
 
-        <div>
+          {message && <p className="form-message">{message}</p>}
 
-          <input
-            type={showPassword ? "text" : "password"}
-            placeholder="Enter password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className="social-block">
+            <span>or continue with</span>
+            <div className="social-actions" aria-label="Social login examples">
+              <button type="button" className="facebook">f</button>
+              <button type="button" className="apple">Apple</button>
+              <button type="button" className="google">G</button>
+            </div>
+          </div>
 
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            style={{ marginLeft: "10px" }}
-          >
-            {showPassword ? "Hide" : "Show"}
-          </button>
-
+          <p className="switch-auth">
+            If you don't have an account register
+            <br />
+            You can <Link to="/signup">Register here !</Link>
+          </p>
         </div>
-
-        <br /><br />
-
-        <button type="submit">
-          Login
-        </button>
-
-      </form>
-
-      {message && (
-        <p style={{ color: "red" }}>
-          {message}
-        </p>
-      )}
-
+      </section>
     </div>
   );
 }

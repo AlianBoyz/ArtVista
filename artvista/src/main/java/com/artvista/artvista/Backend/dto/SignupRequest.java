@@ -5,6 +5,8 @@ public class SignupRequest {
     private String email;
     private String password;
     private String phone;
+    private String role;
+    private String passkey;
 
     public SignupRequest() {
     }
@@ -39,5 +41,21 @@ public class SignupRequest {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getPasskey() {
+        return passkey;
+    }
+
+    public void setPasskey(String passkey) {
+        this.passkey = passkey;
     }
 }

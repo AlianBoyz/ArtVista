@@ -10,4 +10,6 @@ public interface CartService {
     Cart saveCart(Cart cart);
 
     CartItem addPaintingToCart(Long userId, Long paintingId, Integer quantity);
+
+    void removeItemFromCart(Long itemId);
 }

@@ -1,5 +1,6 @@
 package com.artvista.artvista.Backend.config;
 
+import com.artvista.artvista.Backend.repository.AdminRepository;
 import com.artvista.artvista.Backend.repository.UserRepository;
 import com.artvista.artvista.Backend.util.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -16,10 +17,12 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
+    private final AdminRepository adminRepository;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserRepository userRepository) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, UserRepository userRepository, AdminRepository adminRepository) {
         this.jwtUtil = jwtUtil;
         this.userRepository = userRepository;
+        this.adminRepository = adminRepository;
     }
 
     @Override
@@ -56,14 +59,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         boolean isAdminToken = "ADMIN".equalsIgnoreCase(role);
         Number tokenUserId = claims.get("userId", Number.class);
 
+        if (isAdminToken) {
+            if (adminRepository.findByEmail(userEmail).isEmpty()) {
+                writeUnauthorized(response, "Admin not found for token");
+                return;
+            }
+        } else {
+            if (userRepository.findByEmail(userEmail).isEmpty()) {
+                writeUnauthorized(response, "User not found for token");
+                return;
+            }
+        }
+
         if (requestUri.startsWith("/api/admin/") && !requestUri.equals("/api/admin/login")) {
             if (!isAdminToken) {
                 writeForbidden(response, "Admin access required");
                 return;
             }
-        } else if (!isAdminToken && userRepository.findByEmail(userEmail).isEmpty()) {
-            writeUnauthorized(response, "User not found for token");
-            return;
         }
 
         // Make authenticated user available to downstream handlers if needed.

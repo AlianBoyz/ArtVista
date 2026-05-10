@@ -61,6 +61,7 @@ public class EventController {
             @RequestParam(required = false) String duration,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate eventDate,
             @RequestParam Long artistId,
+            @RequestParam(required = false) Integer totalSeats,
             @RequestParam("eventImage") MultipartFile image) {
         Artist artist = artistRepository.findById(artistId)
                 .orElseThrow(() -> new ResourceNotFoundException("Artist not found with id: " + artistId));
@@ -73,6 +74,9 @@ public class EventController {
         event.setDuration(duration);
         event.setEventDate(eventDate);
         event.setArtist(artist);
+        if (totalSeats != null) {
+            event.setTotalSeats(totalSeats);
+        }
         event.setImageUrl(fileStorageService.storeEventImage(image));
 
         return ResponseEntity.ok(ApiResponse.success("Event added successfully", eventService.addEvent(event)));
@@ -108,6 +112,7 @@ public class EventController {
             @RequestParam(required = false) String duration,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate eventDate,
             @RequestParam(required = false) Long artistId,
+            @RequestParam(required = false) Integer totalSeats,
             @RequestParam(value = "eventImage", required = false) MultipartFile image) {
         Event existing = eventService.getEventById(id);
         existing.setTitle(title);
@@ -116,6 +121,9 @@ public class EventController {
         existing.setLocation(location);
         existing.setDuration(duration);
         existing.setEventDate(eventDate);
+        if (totalSeats != null) {
+            existing.setTotalSeats(totalSeats);
+        }
 
         if (artistId != null) {
             Artist artist = artistRepository.findById(artistId)
@@ -138,7 +146,17 @@ public class EventController {
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<EventRegistration>> registerEvent(@RequestBody RegisterEventRequest request) {
-        EventRegistration registration = eventRegistrationService.registerForEvent(request.getUserId(), request.getEventId());
+        EventRegistration registration = eventRegistrationService.registerForEvent(
+            request.getUserId(), 
+            request.getEventId(),
+            request.getPaymentType(),
+            request.getPaymentId()
+        );
         return ResponseEntity.ok(ApiResponse.success("Event registered successfully", registration));
+    }
+
+    @GetMapping("/{id}/is-registered")
+    public ResponseEntity<ApiResponse<Boolean>> isRegistered(@PathVariable Long id, @RequestParam Long userId) {
+        return ResponseEntity.ok(ApiResponse.success("Status fetched", eventRegistrationService.isUserRegistered(userId, id)));
     }
 }

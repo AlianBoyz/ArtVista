@@ -48,7 +48,6 @@ public class User {
     @Column(nullable = true)
     private String landmark;
 
-
     @Column(name="created_at", updatable = false)
     private LocalDateTime cratedAt=LocalDateTime.now();
 

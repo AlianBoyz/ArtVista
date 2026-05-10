@@ -48,9 +48,8 @@ public class CartServiceImpl implements CartService {
                 if (item.getItemType() != CartItem.ItemType.PAINTING || item.getPainting() == null) {
                     throw new IllegalArgumentException("Only paintings can be added to cart");
                 }
-                if (item.getQuantity() == null || item.getQuantity() <= 0) {
-                    item.setQuantity(1);
-                }
+                // Enforce quantity 1 for paintings
+                item.setQuantity(1);
                 item.setCart(cart);
                 normalizedItems.add(item);
             }
@@ -67,6 +66,10 @@ public class CartServiceImpl implements CartService {
         Painting painting = paintingsRepository.findById(paintingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Painting not found with id: " + paintingId));
 
+        if (!painting.getAvailable()) {
+            throw new IllegalArgumentException("Painting is already sold");
+        }
+
         Cart cart = cartRepository.findByUserId(userId).orElseGet(() -> {
             Cart newCart = new Cart();
             newCart.setUser(user);
@@ -75,17 +78,23 @@ public class CartServiceImpl implements CartService {
 
         CartItem existingItem = cartItemRepository.findByCartUserIdAndPaintingId(userId, paintingId);
         if (existingItem != null) {
-            int qty = quantity == null || quantity <= 0 ? 1 : quantity;
-            existingItem.setQuantity(existingItem.getQuantity() + qty);
-            return cartItemRepository.save(existingItem);
+            throw new IllegalArgumentException("This painting is already in your cart");
         }
 
         CartItem item = new CartItem();
         item.setCart(cart);
         item.setPainting(painting);
         item.setItemType(CartItem.ItemType.PAINTING);
-        item.setQuantity(quantity == null || quantity <= 0 ? 1 : quantity);
+        item.setQuantity(1); // Enforce quantity 1
 
         return cartItemRepository.save(item);
+    }
+
+    @Override
+    public void removeItemFromCart(Long itemId) {
+        if (!cartItemRepository.existsById(itemId)) {
+            throw new ResourceNotFoundException("Cart item not found with id: " + itemId);
+        }
+        cartItemRepository.deleteById(itemId);
     }
 }

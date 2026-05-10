@@ -37,6 +37,12 @@ public class EventRegistration {
     @Column(name = "registered_at", updatable = false, nullable = false)
     private LocalDateTime registeredAt = LocalDateTime.now();
 
+    @Column(name = "payment_id")
+    private String paymentId;
+
+    @Column(name = "payment_type")
+    private String paymentType;
+
     public enum RegistrationStatus {
         ACCEPT,
         REJECT
@@ -80,5 +86,21 @@ public class EventRegistration {
 
     public void setRegisteredAt(LocalDateTime registeredAt) {
         this.registeredAt = registeredAt;
+    }
+
+    public String getPaymentId() {
+        return paymentId;
+    }
+
+    public void setPaymentId(String paymentId) {
+        this.paymentId = paymentId;
+    }
+
+    public String getPaymentType() {
+        return paymentType;
+    }
+
+    public void setPaymentType(String paymentType) {
+        this.paymentType = paymentType;
     }
 }

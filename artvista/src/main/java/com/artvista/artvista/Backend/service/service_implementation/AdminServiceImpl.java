@@ -2,26 +2,23 @@ package com.artvista.artvista.Backend.service.service_implementation;
 
 import com.artvista.artvista.Backend.dto.AuthResponse;
 import com.artvista.artvista.Backend.dto.LoginRequest;
+import com.artvista.artvista.Backend.model.Admin;
+import com.artvista.artvista.Backend.repository.AdminRepository;
 import com.artvista.artvista.Backend.service.AdminService;
 import com.artvista.artvista.Backend.util.JwtUtil;
-import org.springframework.beans.factory.annotation.Value;
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class AdminServiceImpl implements AdminService {
+    private final AdminRepository adminRepository;
     private final JwtUtil jwtUtil;
 
-    @Value("${admin.emails}")
-    private String adminEmails;
-
-    @Value("${admin.password}")
-    private String adminPassword;
-
-    public AdminServiceImpl(JwtUtil jwtUtil) {
+    public AdminServiceImpl(AdminRepository adminRepository, JwtUtil jwtUtil) {
+        this.adminRepository = adminRepository;
         this.jwtUtil = jwtUtil;
     }
 
@@ -37,22 +34,23 @@ public class AdminServiceImpl implements AdminService {
             throw new IllegalArgumentException("Password is required");
         }
 
-        List<String> adminEmailList = Arrays.stream(adminEmails.split(","))
-                .map(String::trim)
-                .toList();
+        Admin admin = adminRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid admin credentials"));
 
-        boolean isAdmin = adminEmailList.contains(email) && adminPassword.equals(password);
-        if (!isAdmin) {
+        if (!BCrypt.checkpw(password, admin.getPassword())) {
             throw new IllegalArgumentException("Invalid admin credentials");
         }
 
-        String token = jwtUtil.generateToken(email, Map.of("role", "ADMIN"));
-        return new AuthResponse(token, null, "Admin", email);
+        String token = jwtUtil.generateToken(email, Map.of(
+                "userId", admin.getId(),
+                "role", "ADMIN"
+        ));
+        return new AuthResponse(token, admin.getId(), admin.getName(), email);
     }
 
     @Override
     public AuthResponse isAdmin(LoginRequest request) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isAdmin'");
+        // Optional implementation if needed for specific admin checks
+        return null;
     }
 }

@@ -41,6 +41,12 @@ public class Event {
     @Column(name="image_url", length = 255)
     private String imageUrl;
 
+    @Column(name="total_seats")
+    private Integer totalSeats = 0;
+
+    @Column(name="available_seats")
+    private Integer availableSeats = 0;
+
     @ManyToOne()
     @JoinColumn(name= "artist_id")
     private Artist artist;
@@ -51,7 +57,7 @@ public class Event {
     public Event(){}
 
     public Event(Long id, String title, String description, BigDecimal price, String location, String duration,
-            LocalDate eventDate, String imageUrl, Artist artist, LocalDateTime createdAt) {
+            LocalDate eventDate, String imageUrl, Integer totalSeats, Integer availableSeats, Artist artist, LocalDateTime createdAt) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -60,6 +66,8 @@ public class Event {
         this.duration = duration;
         this.eventDate = eventDate;
         this.imageUrl = imageUrl;
+        this.totalSeats = totalSeats;
+        this.availableSeats = availableSeats;
         this.artist = artist;
         this.createdAt = createdAt;
     }
@@ -126,6 +134,25 @@ public class Event {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public Integer getTotalSeats() {
+        return totalSeats;
+    }
+
+    public void setTotalSeats(Integer totalSeats) {
+        this.totalSeats = totalSeats;
+        if (this.availableSeats == null || this.availableSeats == 0) {
+            this.availableSeats = totalSeats;
+        }
+    }
+
+    public Integer getAvailableSeats() {
+        return availableSeats;
+    }
+
+    public void setAvailableSeats(Integer availableSeats) {
+        this.availableSeats = availableSeats;
     }
 
     public Artist getArtist() {

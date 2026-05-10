@@ -15,6 +15,7 @@ const ManageEvents = () => {
   const [duration, setDuration] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [artistId, setArtistId] = useState("");
+  const [totalSeats, setTotalSeats] = useState("");
   const [image, setImage] = useState(null);
 
   const token = localStorage.getItem("token");
@@ -43,6 +44,7 @@ const ManageEvents = () => {
     setDuration("");
     setEventDate("");
     setArtistId("");
+    setTotalSeats("");
     setImage(null);
     setShowModal(true);
   };
@@ -56,6 +58,7 @@ const ManageEvents = () => {
     setDuration(event.duration);
     setEventDate(event.eventDate);
     setArtistId(event.artist?.id);
+    setTotalSeats(event.totalSeats);
     setShowModal(true);
   };
 
@@ -84,6 +87,7 @@ const ManageEvents = () => {
     formData.append("duration", duration);
     formData.append("eventDate", eventDate);
     formData.append("artistId", artistId);
+    formData.append("totalSeats", totalSeats);
 
     if (image) {
       formData.append("eventImage", image);
@@ -207,6 +211,14 @@ const ManageEvents = () => {
                   placeholder="Artist Id"
                   value={artistId}
                   onChange={(e) => setArtistId(e.target.value)}
+                />
+
+                <input
+                  className="events-modal__input"
+                  type="number"
+                  placeholder="Total Seats"
+                  value={totalSeats}
+                  onChange={(e) => setTotalSeats(e.target.value)}
                 />
               </div>
 

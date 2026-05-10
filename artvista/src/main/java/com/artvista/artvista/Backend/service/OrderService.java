@@ -7,7 +7,7 @@ public interface OrderService {
 
     Order placeOrder(Order order);
 
-    Order checkoutFromCart(Long userId, Order.PaymentType paymentType, String paymentId);
+    Order checkout(Long userId, Order.PaymentType paymentType, String paymentId, Long paintingId);
 
     List<Order> getOrdersByUser(Long userId);
 

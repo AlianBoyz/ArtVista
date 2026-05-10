@@ -3,9 +3,9 @@ import Navbar from '../Components/Navbar'
 import { Outlet } from 'react-router-dom'
 const MainLayout = () => {
   return (
-    <div>
-      <Navbar></Navbar>
-       <div style={{ marginTop: "80px" }}>
+    <div style={{ minHeight: "100vh", background: "#ffffff" }}>
+      <Navbar />
+       <div style={{ paddingTop: "70px" }}>
         <Outlet />
       </div>
     </div>
