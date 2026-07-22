@@ -1,4 +1,6 @@
-import { NavLink } from "react-router-dom";
+import { useContext } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { AuthContext } from "../../Context/AuthProvider";
 import "./Sidebar.css";
 
 const navItems = [
@@ -67,9 +69,21 @@ const navItems = [
 ];
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
   const adminName = localStorage.getItem("adminName") || "Admin";
   const adminEmail = localStorage.getItem("adminEmail") || "";
-  const avatarLetter = adminEmail.trim().charAt(0).toUpperCase();
+  const avatarLetter = adminEmail.trim().charAt(0).toUpperCase() || "A";
+
+  const handleAdminLogout = () => {
+    if (logout) logout();
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("adminEmail");
+    localStorage.removeItem("adminName");
+    localStorage.removeItem("userId");
+    window.location.href = "/login";
+  };
 
   return (
     <aside className="admin-sidebar">
@@ -77,7 +91,7 @@ const Sidebar = () => {
         <div className="admin-sidebar__avatar">{avatarLetter}</div>
         <div>
           <p className="admin-sidebar__label">Admin Profile</p>
-          <h2>Admin</h2>
+          <h2>{adminName}</h2>
           {adminEmail && <span className="admin-sidebar__meta">{adminEmail}</span>}
         </div>
       </div>
@@ -95,6 +109,30 @@ const Sidebar = () => {
             <span>{item.label}</span>
           </NavLink>
         ))}
+
+        <button
+          onClick={handleAdminLogout}
+          className="admin-sidebar__link"
+          style={{
+            marginTop: 12,
+            border: "none",
+            background: "#fee2e2",
+            color: "#991b1b",
+            fontWeight: 700,
+            cursor: "pointer",
+            width: "100%",
+            textAlign: "left",
+          }}
+        >
+          <span className="admin-sidebar__icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true" style={{ stroke: "#991b1b" }}>
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16 17 21 12 16 7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </span>
+          <span>Logout</span>
+        </button>
       </nav>
     </aside>
   );

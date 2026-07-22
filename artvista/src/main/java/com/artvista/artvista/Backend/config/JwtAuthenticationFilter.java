@@ -57,17 +57,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Claims claims = jwtUtil.getAllClaimsFromToken(jwtToken);
         String role = claims.get("role", String.class);
         boolean isAdminToken = "ADMIN".equalsIgnoreCase(role);
-        Number tokenUserId = claims.get("userId", Number.class);
+
+        Long userId = null;
+        Object rawUserId = claims.get("userId");
+        if (rawUserId instanceof Number num) {
+            userId = num.longValue();
+        } else if (rawUserId instanceof String str) {
+            try {
+                userId = Long.parseLong(str);
+            } catch (NumberFormatException ignored) {}
+        }
 
         if (isAdminToken) {
-            if (adminRepository.findByEmail(userEmail).isEmpty()) {
+            var adminOpt = adminRepository.findByEmail(userEmail);
+            if (adminOpt.isEmpty()) {
                 writeUnauthorized(response, "Admin not found for token");
                 return;
             }
+            if (userId == null) {
+                userId = adminOpt.get().getId();
+            }
         } else {
-            if (userRepository.findByEmail(userEmail).isEmpty()) {
+            var userOpt = userRepository.findByEmail(userEmail);
+            if (userOpt.isEmpty()) {
                 writeUnauthorized(response, "User not found for token");
                 return;
+            }
+            if (userId == null) {
+                userId = userOpt.get().getId();
             }
         }
 
@@ -81,8 +98,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Make authenticated user available to downstream handlers if needed.
         request.setAttribute("authenticatedEmail", userEmail);
         request.setAttribute("authenticatedRole", isAdminToken ? "ADMIN" : "USER");
-        if (tokenUserId != null) {
-            request.setAttribute("authenticatedUserId", tokenUserId.longValue());
+        if (userId != null) {
+            request.setAttribute("authenticatedUserId", userId);
         }
 
         filterChain.doFilter(request, response);

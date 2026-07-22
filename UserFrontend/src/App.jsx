@@ -18,6 +18,7 @@ import Cart from "./Pages/Cart";
 import Events from "./Pages/Events";
 import EventDetails from "./Pages/EventDetails";
 import Checkout from "./Pages/Checkout";
+import Orders from "./Pages/Orders";
 
 // Admin Imports
 import Dashboard from "./Admin/Pages/Dashboard";
@@ -37,38 +38,25 @@ const ProtectedAdminRoute = ({ children }) => {
 };
 
 function App() {
-
   return (
-
     <BrowserRouter>
-
       <Routes>
-
         <Route path="/" element={<Landing />} />
-
         <Route path="/login" element={<Login />} />
-
         <Route path="/signup" element={<Signup />} />
 
         {/* User Routes */}
         <Route element={<MainLayout />}>
-
           <Route path="/home" element={<Home />} />
-
           <Route path="/paintings" element={<Paintings />} />
-
           <Route path="/paintingDetails/:id" element={<PaintingDetails />} />
-
-          <Route path="/events" element={<Events />}></Route>
+          <Route path="/events" element={<Events />} />
           <Route path="/events/:id" element={<EventDetails />} />
-
-
-          <Route path="/cart" element={<Cart />}></Route>
-          <Route path="/checkout" element={<Checkout />}></Route>
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/orders" element={<Orders />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
-
-
         </Route>
 
         {/* Admin Routes */}
@@ -133,8 +121,10 @@ function App() {
           }
         />
 
+        {/* Fallback routes for admin login and unhandled paths */}
+        <Route path="/admin/login" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-
     </BrowserRouter>
   );
 }

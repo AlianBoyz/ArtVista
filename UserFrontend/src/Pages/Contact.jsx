@@ -1,13 +1,18 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { jwtDecode } from "jwt-decode";
 import {
+  Alert,
   Box,
   Button,
   Container,
   Paper,
+  Snackbar,
   TextField,
   Typography,
 } from "@mui/material";
+import { AuthContext } from "../Context/AuthProvider";
 
+const url = import.meta.env.VITE_BASE_URL;
 const contactArt = "/artvista-auth/desi-art.png";
 
 const watercolorBg = {
@@ -17,26 +22,115 @@ const watercolorBg = {
 };
 
 const Contact = () => {
+  const { token, userId: contextUserId } = useContext(AuthContext);
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
   const [form, setForm] = useState({
-    name: "",
-    email: "",
+    subject: "",
     query: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [alertInfo, setAlertInfo] = useState({ open: false, message: "", severity: "success" });
+
+  useEffect(() => {
+    let currentUserId = contextUserId || localStorage.getItem("userId");
+    let emailFromToken = "";
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        if (decoded) {
+          if (decoded.email) emailFromToken = decoded.email;
+          if (decoded.sub && decoded.sub.includes("@")) emailFromToken = decoded.sub;
+          if (decoded.name) setUserName(decoded.name);
+          if (decoded.userId) currentUserId = decoded.userId;
+        }
+      } catch (e) {}
+    }
+    if (emailFromToken) setUserEmail(emailFromToken);
+
+    if (currentUserId) {
+      fetch(`${url}/users/${currentUserId}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.success && data.data) {
+            if (data.data.name) setUserName(data.data.name);
+            if (data.data.email) setUserEmail(data.data.email);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [token, contextUserId]);
 
   const handleChange = (event) => {
     setForm({ ...form, [event.target.name]: event.target.value });
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    console.log("Contact form submitted:", form);
-    alert("Thank you for contacting us! We will get back to you soon.");
-    setForm({ name: "", email: "", query: "" });
+    setLoading(true);
+
+    let currentUserId = contextUserId || localStorage.getItem("userId");
+    let finalEmail = userEmail;
+    let finalName = userName;
+
+    if (token && !currentUserId) {
+      try {
+        const decoded = jwtDecode(token);
+        if (decoded) {
+          if (decoded.userId) currentUserId = decoded.userId;
+          if (!finalEmail && decoded.email) finalEmail = decoded.email;
+          if (!finalEmail && decoded.sub && decoded.sub.includes("@")) finalEmail = decoded.sub;
+          if (!finalName && decoded.name) finalName = decoded.name;
+        }
+      } catch (e) {}
+    }
+
+    try {
+      const response = await fetch(`${url}/complaints`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          userId: currentUserId ? Number(currentUserId) : null,
+          name: finalName || "User",
+          email: finalEmail || "user@artvista.com",
+          subject: form.subject || "User Complaint / Query",
+          message: form.query,
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok && data.success) {
+        setAlertInfo({ open: true, message: "Your complaint/message has been submitted to support!", severity: "success" });
+        setForm({ subject: "", query: "" });
+      } else {
+        setAlertInfo({ open: true, message: data.message || "Failed to submit message", severity: "error" });
+      }
+    } catch (err) {
+      setAlertInfo({ open: true, message: "Network error submitting message", severity: "error" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Box sx={{ ...watercolorBg, minHeight: "calc(100vh - 70px)", py: { xs: 4, md: 7 } }}>
       <Container maxWidth="lg">
+        <Snackbar
+          open={alertInfo.open}
+          autoHideDuration={6000}
+          onClose={() => setAlertInfo({ ...alertInfo, open: false })}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert severity={alertInfo.severity} onClose={() => setAlertInfo({ ...alertInfo, open: false })}>
+            {alertInfo.message}
+          </Alert>
+        </Snackbar>
+
         <Box
           sx={{
             display: "grid",
@@ -51,7 +145,7 @@ const Contact = () => {
               Contact Us
             </Typography>
             <Typography variant="h4" sx={{ fontWeight: 500, color: "#151515" }}>
-              ArtVista
+              ArtVista Support & Complaints
             </Typography>
           </Box>
           <Box
@@ -73,11 +167,17 @@ const Contact = () => {
             bgcolor: "rgba(255,255,255,0.96)",
           }}
         >
+          {userName && userEmail && (
+            <Box sx={{ mb: 3, p: 2, bgcolor: "#f3f4f6", borderRadius: 1.5, border: "1px solid #e5e7eb" }}>
+              <Typography variant="body2" color="text.secondary">Submitting complaint as:</Typography>
+              <Typography fontWeight={700}>{userName} ({userEmail})</Typography>
+            </Box>
+          )}
+
           <Box component="form" onSubmit={handleSubmit} sx={{ display: "grid", gap: 2.5 }}>
-            <TextField label="Name" name="name" value={form.name} onChange={handleChange} required fullWidth />
-            <TextField label="Email ID" type="email" name="email" value={form.email} onChange={handleChange} required fullWidth />
+            <TextField label="Subject / Topic" name="subject" value={form.subject} onChange={handleChange} fullWidth placeholder="e.g. Order issue, Event inquiry" />
             <TextField
-              label="Comment your query"
+              label="Comment your query or complaint"
               name="query"
               value={form.query}
               onChange={handleChange}
@@ -86,8 +186,8 @@ const Contact = () => {
               multiline
               minRows={5}
             />
-            <Button type="submit" variant="contained" sx={{ justifySelf: { xs: "stretch", sm: "start" }, minWidth: 180, py: 1.2, bgcolor: "#5146c9" }}>
-              Send Message
+            <Button type="submit" variant="contained" disabled={loading} sx={{ justifySelf: { xs: "stretch", sm: "start" }, minWidth: 180, py: 1.2, bgcolor: "#5146c9" }}>
+              {loading ? "Submitting..." : "Send Message"}
             </Button>
           </Box>
         </Paper>

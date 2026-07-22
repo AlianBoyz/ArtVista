@@ -5,7 +5,9 @@ import com.artvista.artvista.Backend.dto.UpdateEventRegistrationStatusRequest;
 import com.artvista.artvista.Backend.dto.UpdateOrderStatusRequest;
 import com.artvista.artvista.Backend.model.EventRegistration;
 import com.artvista.artvista.Backend.model.Order;
+import com.artvista.artvista.Backend.model.Complaint;
 import com.artvista.artvista.Backend.service.AdminService;
+import com.artvista.artvista.Backend.service.ComplaintService;
 import com.artvista.artvista.Backend.service.EventRegistrationService;
 import com.artvista.artvista.Backend.service.OrderService;
 import com.artvista.artvista.Backend.util.ApiResponse;
@@ -16,9 +18,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -26,12 +30,14 @@ public class AdminController {
     private final AdminService adminService;
     private final OrderService orderService;
     private final EventRegistrationService eventRegistrationService;
+    private final ComplaintService complaintService;
 
     public AdminController(AdminService adminService, OrderService orderService,
-            EventRegistrationService eventRegistrationService) {
+            EventRegistrationService eventRegistrationService, ComplaintService complaintService) {
         this.adminService = adminService;
         this.orderService = orderService;
         this.eventRegistrationService = eventRegistrationService;
+        this.complaintService = complaintService;
     }
 
     @PostMapping("/login")
@@ -85,5 +91,20 @@ public class AdminController {
         EventRegistration.RegistrationStatus status = EventRegistration.RegistrationStatus.valueOf(request.getStatus().toUpperCase());
         EventRegistration updated = eventRegistrationService.updateRegistrationStatus(registrationId, status);
         return ResponseEntity.ok(ApiResponse.success("Event registration status updated successfully", updated));
+    }
+
+    @GetMapping("/complaints")
+    public ResponseEntity<ApiResponse<List<Complaint>>> getAllComplaints() {
+        return ResponseEntity.ok(ApiResponse.success("Complaints fetched successfully", complaintService.getAllComplaints()));
+    }
+
+    @PutMapping("/complaints/{id}/status")
+    public ResponseEntity<ApiResponse<Complaint>> updateComplaintStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+        String statusStr = body.getOrDefault("status", "ADDRESSED");
+        Complaint.ComplaintStatus status = Complaint.ComplaintStatus.valueOf(statusStr.toUpperCase());
+        Complaint updated = complaintService.updateComplaintStatus(id, status);
+        return ResponseEntity.ok(ApiResponse.success("Complaint status updated successfully", updated));
     }
 }

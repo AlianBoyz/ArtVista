@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -85,6 +86,33 @@ public class EventController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<Event>>> getAllEvents() {
         return ResponseEntity.ok(ApiResponse.success("Events fetched successfully", eventService.getAllEvents()));
+    }
+
+    @GetMapping("/my-registrations")
+    public ResponseEntity<ApiResponse<List<EventRegistration>>> getMyRegistrations(
+            @RequestParam(required = false) Long userId,
+            HttpServletRequest request) {
+        Long authenticatedId = getAuthenticatedUserId(request);
+        Long targetUserId = userId != null ? userId : authenticatedId;
+        if (targetUserId == null) {
+            throw new IllegalArgumentException("User ID is required");
+        }
+        return ResponseEntity.ok(ApiResponse.success(
+                "Event registrations fetched successfully",
+                eventRegistrationService.getRegistrationsByUser(targetUserId)));
+    }
+
+    private Long getAuthenticatedUserId(HttpServletRequest request) {
+        Object value = request.getAttribute("authenticatedUserId");
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
+        if (value instanceof String str) {
+            try {
+                return Long.parseLong(str);
+            } catch (NumberFormatException ignored) {}
+        }
+        return null;
     }
 
     @GetMapping("/artist/{artistId}")

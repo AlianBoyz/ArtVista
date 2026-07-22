@@ -191,6 +191,15 @@ function Checkout() {
 
         const data = await res.json();
         if (data.success) {
+          if (data.data) {
+            try {
+              const existing = JSON.parse(localStorage.getItem("user_event_registrations") || "[]");
+              existing.push(data.data);
+              localStorage.setItem("user_event_registrations", JSON.stringify(existing));
+            } catch (e) {
+              console.error("Failed to save local registration record:", e);
+            }
+          }
           alert("Successfully registered for the event! Payment " + (pType === "COD" ? "Pending (COD)" : "Confirmed"));
           navigate("/events");
         } else {

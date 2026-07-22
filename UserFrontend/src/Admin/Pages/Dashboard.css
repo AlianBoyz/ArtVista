@@ -1,14 +1,14 @@
 .dashboard-page {
   display: grid;
-  gap: 24px;
+  gap: 16px;
 }
 
 .dashboard-hero {
-  padding: 8px 8px 4px;
+  padding: 0;
 }
 
 .dashboard-hero__eyebrow {
-  margin: 0 0 8px;
+  margin: 0 0 4px;
   color: #7d8398;
   font-size: 0.85rem;
   font-weight: 700;
@@ -19,24 +19,24 @@
 .dashboard-hero h1 {
   margin: 0;
   color: #0c1020;
-  font-size: clamp(2.2rem, 4vw, 3.5rem);
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
   line-height: 1.02;
 }
 
 .dashboard-stats {
   display: grid;
-  gap: 22px;
+  gap: 10px;
   justify-items: end;
 }
 
 .dashboard-card {
   display: grid;
-  width: min(100%, 580px);
-  grid-template-columns: 92px 1fr;
+  width: min(100%, 360px);
+  grid-template-columns: 42px 1fr;
   align-items: center;
-  gap: 20px;
-  padding: 28px 30px;
-  border-radius: 28px;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 16px;
   color: #ffffff;
   box-shadow: 0 18px 28px rgba(112, 117, 138, 0.22);
 }
@@ -58,8 +58,8 @@
 }
 
 .dashboard-card__icon svg {
-  width: 64px;
-  height: 64px;
+  width: 32px;
+  height: 32px;
   fill: none;
   stroke: currentColor;
   stroke-width: 1.5;
@@ -68,14 +68,14 @@
 }
 
 .dashboard-card__content h2 {
-  margin: 10px 0 0;
-  font-size: clamp(1.7rem, 2vw, 2.2rem);
+  margin: 3px 0 0;
+  font-size: 1.05rem;
   line-height: 1.15;
 }
 
 .dashboard-card__content p {
-  margin: 10px 0 0;
-  font-size: 1.05rem;
+  margin: 3px 0 0;
+  font-size: 0.8rem;
   font-weight: 700;
   opacity: 0.95;
 }
@@ -87,35 +87,35 @@
 }
 
 .dashboard-card__value {
-  font-size: clamp(2.2rem, 3vw, 3rem);
+  font-size: 1.6rem;
   font-weight: 800;
   line-height: 1;
 }
 
 .dashboard-card__suffix {
-  font-size: 1.2rem;
+  font-size: 0.75rem;
   font-weight: 500;
   opacity: 0.9;
 }
 
 @media (max-width: 960px) {
   .dashboard-stats {
-    justify-items: stretch;
+    justify-items: center;
   }
 
   .dashboard-card {
-    width: 100%;
+    width: min(100%, 360px);
   }
 }
 
 @media (max-width: 640px) {
   .dashboard-card {
-    grid-template-columns: 1fr;
-    gap: 16px;
-    padding: 24px;
+    grid-template-columns: 42px 1fr;
+    gap: 10px;
+    padding: 12px 14px;
   }
 
   .dashboard-card__icon {
-    justify-content: flex-start;
+    justify-content: center;
   }
 }

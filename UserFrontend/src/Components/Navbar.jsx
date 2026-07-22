@@ -7,16 +7,19 @@ import {
   Box,
   Button,
   Container,
+  Divider,
   Drawer,
   IconButton,
   List,
   ListItemButton,
   ListItemText,
+  Menu,
+  MenuItem,
   Toolbar,
   Tooltip,
   Typography,
 } from "@mui/material";
-import { Close, Logout, Menu, ShoppingCart, AccountCircle } from "@mui/icons-material";
+import { Close, Logout, Menu as MenuIcon, ShoppingCart, AccountCircle, ReceiptLong } from "@mui/icons-material";
 
 const url = import.meta.env.VITE_BASE_URL;
 
@@ -26,6 +29,9 @@ function Navbar() {
   const { token, logout } = useContext(AuthContext);
   const [open, setOpen] = useState(false);
   const [userName, setUserName] = useState("");
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const openUserMenu = Boolean(anchorEl);
 
   useEffect(() => {
     if (token) {
@@ -52,6 +58,24 @@ function Navbar() {
   const handleLogout = () => {
     logout();
     navigate("/");
+  };
+
+  const handleProfileClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleOrdersClick = () => {
+    handleMenuClose();
+    navigate("/orders");
+  };
+
+  const handleLogoutClick = () => {
+    handleMenuClose();
+    handleLogout();
   };
 
   const navItems = [
@@ -122,31 +146,67 @@ function Navbar() {
                 </IconButton>
               </Tooltip>
 
-              {/* USER PROFILE ON RIGHT */}
-              {token && (
-                <Avatar 
-                  sx={{ 
-                    width: 38, 
-                    height: 38, 
-                    bgcolor: "#5146c9", 
-                    color: "white",
-                    fontWeight: 700,
-                    fontSize: "1.1rem",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
-                    border: "2px solid white",
-                    mx: 1
-                  }}
-                >
-                  {userName ? userName.charAt(0).toUpperCase() : <AccountCircle />}
-                </Avatar>
-              )}
-
+              {/* USER PROFILE AVATAR & DROPDOWN MENU */}
               {token ? (
-                <Tooltip title="Logout">
-                  <IconButton onClick={handleLogout} sx={{ color: "#1f1f24", display: { xs: "none", sm: "inline-flex" } }}>
-                    <Logout />
-                  </IconButton>
-                </Tooltip>
+                <>
+                  <Tooltip title="Profile & Account">
+                    <IconButton onClick={handleProfileClick} sx={{ p: 0, mx: 1 }}>
+                      <Avatar
+                        sx={{
+                          width: 38,
+                          height: 38,
+                          bgcolor: "#5146c9",
+                          color: "white",
+                          fontWeight: 700,
+                          fontSize: "1.1rem",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+                          border: "2px solid white",
+                          cursor: "pointer",
+                        }}
+                      >
+                        {userName ? userName.charAt(0).toUpperCase() : <AccountCircle />}
+                      </Avatar>
+                    </IconButton>
+                  </Tooltip>
+
+                  <Menu
+                    anchorEl={anchorEl}
+                    open={openUserMenu}
+                    onClose={handleMenuClose}
+                    onClick={handleMenuClose}
+                    transformOrigin={{ horizontal: "right", vertical: "top" }}
+                    anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+                    PaperProps={{
+                      elevation: 0,
+                      sx: {
+                        overflow: "visible",
+                        filter: "drop-shadow(0px 4px 20px rgba(0,0,0,0.15))",
+                        mt: 1.5,
+                        borderRadius: 2,
+                        minWidth: 180,
+                        "& .MuiMenuItem-root": {
+                          px: 2,
+                          py: 1.2,
+                          fontSize: "0.9rem",
+                          fontWeight: 600,
+                        },
+                      },
+                    }}
+                  >
+                    <Box sx={{ px: 2, py: 1.5, borderBottom: "1px solid #f3f4f6" }}>
+                      <Typography fontWeight={700} noWrap>{userName || "User"}</Typography>
+                    </Box>
+                    <MenuItem onClick={handleOrdersClick} sx={{ gap: 1.5 }}>
+                      <ReceiptLong sx={{ fontSize: 20, color: "#5146c9" }} />
+                      My Orders
+                    </MenuItem>
+                    <Divider sx={{ my: 0.5 }} />
+                    <MenuItem onClick={handleLogoutClick} sx={{ gap: 1.5, color: "#dc2626" }}>
+                      <Logout sx={{ fontSize: 20, color: "#dc2626" }} />
+                      Logout
+                    </MenuItem>
+                  </Menu>
+                </>
               ) : (
                 <Button
                   variant="outlined"
@@ -164,7 +224,7 @@ function Navbar() {
               )}
 
               <IconButton onClick={() => setOpen(true)} sx={{ color: "#1f1f24", display: { xs: "inline-flex", md: "none" } }}>
-                <Menu />
+                <MenuIcon />
               </IconButton>
             </Box>
           </Toolbar>
@@ -199,9 +259,14 @@ function Navbar() {
               <ListItemText primary="Cart" />
             </ListItemButton>
             {token ? (
-              <ListItemButton onClick={handleLogout} sx={{ borderRadius: 1 }}>
-                <ListItemText primary="Logout" />
-              </ListItemButton>
+              <>
+                <ListItemButton component={Link} to="/orders" onClick={() => setOpen(false)} sx={{ borderRadius: 1, mb: 0.5 }}>
+                  <ListItemText primary="My Orders" />
+                </ListItemButton>
+                <ListItemButton onClick={handleLogout} sx={{ borderRadius: 1 }}>
+                  <ListItemText primary="Logout" />
+                </ListItemButton>
+              </>
             ) : (
               <ListItemButton component={Link} to="/login" onClick={() => setOpen(false)} sx={{ borderRadius: 1 }}>
                 <ListItemText primary="Login" />
