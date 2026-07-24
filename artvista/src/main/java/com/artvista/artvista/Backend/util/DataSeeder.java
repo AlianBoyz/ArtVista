@@ -33,56 +33,57 @@ public class DataSeeder implements CommandLineRunner {
         System.out.println("Seeding dummy data...");
 
         String[] artistImages = {
-            "/uploaded_images/artists/1c10244a-1dd8-4e2e-a345-59a377350e21.png",
-            "/uploaded_images/artists/1ca4b926-9302-4717-9311-075e0ab2c8fd.png",
-            "/uploaded_images/artists/2853b96d-eb1e-48f7-8bc2-ded003f4e554.png",
-            "/uploaded_images/artists/29e6f557-6318-4c4f-8bf9-f61c19df7c34.jpg",
-            "/uploaded_images/artists/3abba6e4-1eb9-4f7d-942e-fd2d06d66cc0.png",
-            "/uploaded_images/artists/3b1adef5-d217-4154-8e0e-9822788cbcdc.png",
-            "/uploaded_images/artists/42b04799-8dc0-4c70-aea9-55a69254f149.jpeg",
-            "/uploaded_images/artists/5d5553cb-caf7-423c-9c3d-8b3266dbe58b.png",
-            "/uploaded_images/artists/5e17622a-ce59-4a45-9fea-67327c6bdd4f.png",
-            "/uploaded_images/artists/5f676113-4285-4b6a-9016-f90db12874c5.png",
-            "/uploaded_images/artists/6a8f048e-b57b-4698-ba63-1e1c14e90ec5.jpeg",
-            "/uploaded_images/artists/8daa13f5-de71-486a-a365-860d419b2828.jpeg",
-            "/uploaded_images/artists/8e87f86c-c7d0-4eb3-81ee-febd4118d53e.png",
-            "/uploaded_images/artists/a1b24a9e-2b0f-47e0-b508-3885f982791d.png",
-            "/uploaded_images/artists/a9fe5892-9697-4b2f-9986-5de1da964fef.png",
-            "/uploaded_images/artists/ab3a33f2-fd5a-46cd-9bc3-100d08a523a1.jpeg",
-            "/uploaded_images/artists/c69cf8c5-277e-439c-848c-d2ec056460be.jpeg",
-            "/uploaded_images/artists/c7a1acbb-005c-4a24-8b20-a8d66ac78dd3.jpeg",
-            "/uploaded_images/artists/db9d085d-a61a-4136-89b7-79208f4c8cf5.png"
+            "/uploaded_images/artists/albert-dera-ILip77SbmOE-unsplash.jpg",
+            "/uploaded_images/artists/ben-den-engelsen-YUu9UAcOKZ4-unsplash.jpg",
+            "/uploaded_images/artists/cesar-rincon-XHVpWcr5grQ-unsplash.jpg",
+            "/uploaded_images/artists/charlesdeluvio-kVg2DQTAK7c-unsplash.jpg",
+            "/uploaded_images/artists/cheerful-indian-businessman-smiling-closeup-portrait-jobs-career-campaign.jpg",
+            "/uploaded_images/artists/christian-buehner-DItYlc26zVI-unsplash.jpg",
+            "/uploaded_images/artists/christopher-campbell-rDEOVtE7vOs-unsplash.jpg",
+            "/uploaded_images/artists/diego-hernandez-MSepzbKFz10-unsplash.jpg",
+            "/uploaded_images/artists/jake-nackos-IF9TK5Uy-KI-unsplash.jpg",
+            "/uploaded_images/artists/jurica-koletic-7YVZYZeITc8-unsplash.jpg",
+            "/uploaded_images/artists/linkedin-sales-solutions-pAtA8xe_iVM-unsplash.jpg",
+            "/uploaded_images/artists/michael-dam-mEZ3PoFGs_k-unsplash.jpg",
+            "/uploaded_images/artists/stefan-stefancik-QXevDflbl8A-unsplash.jpg",
+            "/uploaded_images/artists/vince-veras-AJIqZDAUD7A-unsplash.jpg",
+            "/uploaded_images/artists/young-bearded-man-with-striped-shirt.jpg"
         };
 
         String[] paintingImages = {
-            "/uploaded_images/paintings/173fd057-6aa7-460b-88ce-c508f72b486b.png",
-            "/uploaded_images/paintings/2521aa20-8305-48c7-8da6-f499287ad8de.jpeg",
-            "/uploaded_images/paintings/38d4db52-2717-4ce9-85e2-eb534acb0520.png",
-            "/uploaded_images/paintings/59ed6b40-3b67-4415-9860-ac7886f6225d.png",
-            "/uploaded_images/paintings/5a1a8df5-fd2f-4e44-b509-aeed8f7dfd23.png",
-            "/uploaded_images/paintings/7f821792-9fa7-4ed3-88df-f105253be006.png",
-            "/uploaded_images/paintings/828d297f-b8a6-4548-81cf-637f1d66b649.png",
-            "/uploaded_images/paintings/957162f2-7ff6-42d5-b225-534b6294672f.jpeg",
-            "/uploaded_images/paintings/b089454e-4d55-4674-aa0f-10c8dd371116.png",
-            "/uploaded_images/paintings/c8663b6a-af1f-4117-aa87-dcb4d4487c23.png",
-            "/uploaded_images/paintings/d4476f28-ecfd-442c-bf9a-845492c82873.png",
-            "/uploaded_images/paintings/dec5ee1b-bd6f-472a-980a-dfa87fc81bd8.jpeg"
+            "/uploaded_images/paintings/adrianna-geo-1rBg5YSi00c-unsplash.jpg",
+            "/uploaded_images/paintings/art-institute-of-chicago-AckZaYtIq3I-unsplash.jpg",
+            "/uploaded_images/paintings/birmingham-museums-trust-4lDX-xTLl3Q-unsplash.jpg",
+            "/uploaded_images/paintings/birmingham-museums-trust-8wcoY3wcbL0-unsplash.jpg",
+            "/uploaded_images/paintings/birmingham-museums-trust-HEEvYhNzpEo-unsplash.jpg",
+            "/uploaded_images/paintings/birmingham-museums-trust-wKlHsooRVbg-unsplash.jpg",
+            "/uploaded_images/paintings/british-library-gUDNK8NqYHk-unsplash.jpg",
+            "/uploaded_images/paintings/europeana-6c43FgRt0Dw-unsplash.jpg",
+            "/uploaded_images/paintings/europeana-TjegK_z-0j8-unsplash.jpg",
+            "/uploaded_images/paintings/europeana-VsnDYMWollM-unsplash.jpg",
+            "/uploaded_images/paintings/europeana-YIfFVwDcgu8-unsplash.jpg",
+            "/uploaded_images/paintings/henrik-donnestad-t2Sai-AqIpI-unsplash.jpg",
+            "/uploaded_images/paintings/mcgill-library-y4PqRPqSako-unsplash.jpg",
+            "/uploaded_images/paintings/steve-a-johnson-e5LdlAMpkEw-unsplash.jpg",
+            "/uploaded_images/paintings/tamara-menzi-n-vnWQmmVoY-unsplash.jpg"
         };
 
         String[] eventImages = {
-            "/uploaded_images/events/12ee21f0-bc7e-4bfa-b22a-64a367b2e5e8.png",
-            "/uploaded_images/events/420685f1-343a-413a-8c18-94c0c2198824.png",
-            "/uploaded_images/events/5bb542c1-ac03-4358-b9ad-030e5a9ca16c.png",
-            "/uploaded_images/events/67ca4deb-eb0e-42a3-b718-51b7e0c97b0b.gif",
-            "/uploaded_images/events/789add10-a495-42a6-985a-27094ba1b497.png",
-            "/uploaded_images/events/9168a891-9837-4c57-bd9c-c6e882c7f43f.jpeg",
-            "/uploaded_images/events/91a4ce6a-7ffc-4ad6-9f54-3ab13ff9dbab.jpeg",
-            "/uploaded_images/events/aa326afd-1620-4d82-a1b1-1a14e6ce65b0.png",
-            "/uploaded_images/events/b938f151-507f-4609-b47f-fa6d01431005.png",
-            "/uploaded_images/events/bbdfe0a9-cc22-4537-91ea-9b786efe3141.png",
-            "/uploaded_images/events/c403d201-ea33-42ee-85de-03957d2a8556.jpeg",
-            "/uploaded_images/events/c6bacd49-755b-4a76-a07e-1e7c74ab6b9b.png",
-            "/uploaded_images/events/eab81327-3aa2-4843-a3cd-adbbc08b5c71.jpeg"
+            "/uploaded_images/events/antenna-cw-cj_nFa14-unsplash.jpg",
+            "/uploaded_images/events/britt-gaiser-hSAlu33padA-unsplash.jpg",
+            "/uploaded_images/events/joe-planas-Yy2goJ6W54A-unsplash.jpg",
+            "/uploaded_images/events/kai-oberhauser-_Zu-9injbWc-unsplash.jpg",
+            "/uploaded_images/events/markus-spiske-RmvlD0oTsAo-unsplash.jpg",
+            "/uploaded_images/events/rosalind-chang-BtXCR0QAzwU-unsplash.jpg",
+            "/uploaded_images/events/serenay-gulsen-HlNGaRa2eXk-unsplash.jpg",
+            "/uploaded_images/events/spencer-chow-bftMZBphNuA-unsplash.jpg",
+            "/uploaded_images/events/spencer-chow-DDqocLNZ8J8-unsplash.jpg",
+            "/uploaded_images/events/spencer-chow-Rew-1lxQO2Q-unsplash.jpg",
+            "/uploaded_images/events/spencer-chow-ru-aCjqoOik-unsplash.jpg",
+            "/uploaded_images/events/spencer-chow-rweSHJcY3iU-unsplash.jpg",
+            "/uploaded_images/events/spencer-chow-T2f9cHqeqD0-unsplash.jpg",
+            "/uploaded_images/events/spencer-chow-v4qqUMVXiJw-unsplash (1).jpg",
+            "/uploaded_images/events/spencer-chow-v4qqUMVXiJw-unsplash.jpg"
         };
 
         List<Artist> artists = new ArrayList<>();
@@ -195,9 +196,11 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private boolean isMissingOrDefaultImage(String imagePath) {
-        return imagePath == null
-                || imagePath.isBlank()
-                || imagePath.contains("default-")
-                || !imagePath.startsWith("/uploaded_images/");
+        if (imagePath == null || imagePath.isBlank() || imagePath.contains("default-") || !imagePath.startsWith("/uploaded_images/")) {
+            return true;
+        }
+        String relativePath = imagePath.substring("/uploaded_images".length());
+        java.io.File file = new java.io.File("uploaded_images" + relativePath);
+        return !file.exists();
     }
 }

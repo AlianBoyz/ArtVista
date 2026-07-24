@@ -4,6 +4,9 @@ import com.artvista.artvista.Backend.model.Event;
 import com.artvista.artvista.Backend.exception.ResourceNotFoundException;
 import com.artvista.artvista.Backend.repository.EventRepository;
 import com.artvista.artvista.Backend.service.EventService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -50,6 +53,11 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<Event> getAllEvents() {
         return eventRepository.findAll();
+    }
+
+    @Override
+    public Page<Event> getEventsPage(int page, int size) {
+        return eventRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")));
     }
 
     @Override

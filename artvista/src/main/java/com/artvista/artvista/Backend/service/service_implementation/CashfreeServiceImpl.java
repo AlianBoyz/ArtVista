@@ -62,7 +62,7 @@ public class CashfreeServiceImpl implements CashfreeService {
         orderRequest.put("customer_details", customerDetails);
 
         Map<String, String> orderMeta = new HashMap<>();
-        orderMeta.put("return_url", "http://localhost:5173/home?order_id={order_id}"); // Update this as needed
+        orderMeta.put("return_url", "http://localhost:5173/orders?order_id={order_id}"); // Update this as needed
         orderRequest.put("order_meta", orderMeta);
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(orderRequest, headers);

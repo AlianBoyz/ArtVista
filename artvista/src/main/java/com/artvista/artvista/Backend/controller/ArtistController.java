@@ -44,7 +44,12 @@ public class ArtistController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Artist>>> getAllArtists() {
+    public ResponseEntity<ApiResponse<Object>> getAllArtists(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(defaultValue = "10") int size) {
+        if (page != null) {
+            return ResponseEntity.ok(ApiResponse.success("Artists page fetched successfully", artistService.getArtistsPage(page, size)));
+        }
         return ResponseEntity.ok(ApiResponse.success("Artists fetched successfully", artistService.getAllArtists()));
     }
 

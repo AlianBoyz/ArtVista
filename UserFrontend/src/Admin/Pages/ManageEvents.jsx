@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useToast } from "../../Context/ToastProvider";
 import "./ManageEvents.css";
 
 const url = import.meta.env.VITE_BASE_URL;
 const imageUrl = import.meta.env.VITE_IMAGE_BASE_URL;
 
 const ManageEvents = () => {
+  const { showToast, showConfirm } = useToast();
   const [events, setEvents] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -18,21 +20,57 @@ const ManageEvents = () => {
   const [totalSeats, setTotalSeats] = useState("");
   const [image, setImage] = useState(null);
 
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetchEvents();
+    fetchEvents(0, true);
   }, []);
 
-  const fetchEvents = async () => {
-    const response = await fetch(`${url}/events`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+          document.documentElement.offsetHeight - 200 &&
+        hasMore &&
+        !loading
+      ) {
+        const nextPage = page + 1;
+        setPage(nextPage);
+        fetchEvents(nextPage, false);
+      }
+    };
 
-    const data = await response.json();
-    setEvents(data.data);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [page, hasMore, loading]);
+
+  const fetchEvents = async (pageNum = 0, reset = false) => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const response = await fetch(`${url}/events?page=${pageNum}&size=10`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (data.success && data.data) {
+        const newItems = data.data.content || [];
+        const isLast = data.data.last ?? true;
+
+        setEvents((prev) => (reset ? newItems : [...prev, ...newItems]));
+        setHasMore(!isLast);
+      }
+    } catch (err) {
+      console.error("Error fetching events:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const openAddModal = () => {
@@ -62,18 +100,16 @@ const ManageEvents = () => {
     setShowModal(true);
   };
 
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Delete this event?");
-    if (!confirmDelete) return;
-
-    await fetch(`${url}/events/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  const handleDelete = (id) => {
+    showConfirm("Are you sure you want to delete this event? This action cannot be undone.", async () => {
+      await fetch(`${url}/events/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      showToast("Event deleted successfully.", "success");
+      setPage(0);
+      fetchEvents(0, true);
     });
-
-    fetchEvents();
   };
 
   const handleSubmit = async (e) => {
@@ -112,7 +148,8 @@ const ManageEvents = () => {
     if (response.ok) {
       setShowModal(false);
       setEditId(null);
-      fetchEvents();
+      setPage(0);
+      fetchEvents(0, true);
     }
   };
 

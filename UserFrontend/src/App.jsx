@@ -1,6 +1,7 @@
-import { useState, useContext } from "react";
+import { useState, useContext, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthContext } from "./Context/AuthProvider";
+import { CircularProgress, Box } from "@mui/material";
 
 import "./App.css";
 
@@ -20,14 +21,28 @@ import EventDetails from "./Pages/EventDetails";
 import Checkout from "./Pages/Checkout";
 import Orders from "./Pages/Orders";
 
-// Admin Imports
-import Dashboard from "./Admin/Pages/Dashboard";
-import ManageEvents from "./Admin/Pages/ManageEvents";
-import ManagePaintings from "./Admin/Pages/ManagePaintings";
-import ManageUsers from "./Admin/Pages/ManageUsers";
+// Admin Imports — lazy loaded (only downloaded when admin route is visited)
 import AdminWrapper from "./Admin/Components/AdminWrapper";
-import ManageArtist from "./Admin/Pages/ManageArtist";
-import ManageOrders from "./Admin/Pages/ManageOrders";
+const Dashboard      = lazy(() => import("./Admin/Pages/Dashboard"));
+const ManageEvents   = lazy(() => import("./Admin/Pages/ManageEvents"));
+const ManagePaintings = lazy(() => import("./Admin/Pages/ManagePaintings"));
+const ManageUsers    = lazy(() => import("./Admin/Pages/ManageUsers"));
+const ManageArtist   = lazy(() => import("./Admin/Pages/ManageArtist"));
+const ManageOrders   = lazy(() => import("./Admin/Pages/ManageOrders"));
+
+// Shared loading fallback for all lazy admin pages
+const AdminLoadingFallback = () => (
+  <Box
+    sx={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: "60vh",
+    }}
+  >
+    <CircularProgress sx={{ color: "#675ed9" }} size={48} thickness={4} />
+  </Box>
+);
 
 const ProtectedAdminRoute = ({ children }) => {
   const { token, role } = useContext(AuthContext);
@@ -59,13 +74,15 @@ function App() {
           <Route path="/contact" element={<Contact />} />
         </Route>
 
-        {/* Admin Routes */}
+        {/* Admin Routes — all wrapped in Suspense for lazy loading */}
         <Route
           path="/admin/dashboard"
           element={
             <ProtectedAdminRoute>
               <AdminWrapper>
-                <Dashboard />
+                <Suspense fallback={<AdminLoadingFallback />}>
+                  <Dashboard />
+                </Suspense>
               </AdminWrapper>
             </ProtectedAdminRoute>
           }
@@ -75,7 +92,9 @@ function App() {
           element={
             <ProtectedAdminRoute>
               <AdminWrapper>
-                <ManageOrders />
+                <Suspense fallback={<AdminLoadingFallback />}>
+                  <ManageOrders />
+                </Suspense>
               </AdminWrapper>
             </ProtectedAdminRoute>
           }
@@ -85,7 +104,9 @@ function App() {
           element={
             <ProtectedAdminRoute>
               <AdminWrapper>
-                <ManageEvents />
+                <Suspense fallback={<AdminLoadingFallback />}>
+                  <ManageEvents />
+                </Suspense>
               </AdminWrapper>
             </ProtectedAdminRoute>
           }
@@ -95,7 +116,9 @@ function App() {
           element={
             <ProtectedAdminRoute>
               <AdminWrapper>
-                <ManagePaintings />
+                <Suspense fallback={<AdminLoadingFallback />}>
+                  <ManagePaintings />
+                </Suspense>
               </AdminWrapper>
             </ProtectedAdminRoute>
           }
@@ -105,7 +128,9 @@ function App() {
           element={
             <ProtectedAdminRoute>
               <AdminWrapper>
-                <ManageUsers />
+                <Suspense fallback={<AdminLoadingFallback />}>
+                  <ManageUsers />
+                </Suspense>
               </AdminWrapper>
             </ProtectedAdminRoute>
           }
@@ -115,13 +140,15 @@ function App() {
           element={
             <ProtectedAdminRoute>
               <AdminWrapper>
-                <ManageArtist />
+                <Suspense fallback={<AdminLoadingFallback />}>
+                  <ManageArtist />
+                </Suspense>
               </AdminWrapper>
             </ProtectedAdminRoute>
           }
         />
 
-        {/* Fallback routes for admin login and unhandled paths */}
+        {/* Fallback routes */}
         <Route path="/admin/login" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

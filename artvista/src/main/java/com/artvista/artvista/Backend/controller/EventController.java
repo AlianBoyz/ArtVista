@@ -84,22 +84,25 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Event>>> getAllEvents() {
+    public ResponseEntity<ApiResponse<Object>> getAllEvents(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(defaultValue = "10") int size) {
+        if (page != null) {
+            return ResponseEntity.ok(ApiResponse.success("Events page fetched successfully", eventService.getEventsPage(page, size)));
+        }
         return ResponseEntity.ok(ApiResponse.success("Events fetched successfully", eventService.getAllEvents()));
     }
 
     @GetMapping("/my-registrations")
     public ResponseEntity<ApiResponse<List<EventRegistration>>> getMyRegistrations(
-            @RequestParam(required = false) Long userId,
             HttpServletRequest request) {
         Long authenticatedId = getAuthenticatedUserId(request);
-        Long targetUserId = userId != null ? userId : authenticatedId;
-        if (targetUserId == null) {
-            throw new IllegalArgumentException("User ID is required");
+        if (authenticatedId == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("Unauthorized"));
         }
         return ResponseEntity.ok(ApiResponse.success(
                 "Event registrations fetched successfully",
-                eventRegistrationService.getRegistrationsByUser(targetUserId)));
+                eventRegistrationService.getRegistrationsByUser(authenticatedId)));
     }
 
     private Long getAuthenticatedUserId(HttpServletRequest request) {
@@ -173,9 +176,16 @@ public class EventController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<EventRegistration>> registerEvent(@RequestBody RegisterEventRequest request) {
+    public ResponseEntity<ApiResponse<EventRegistration>> registerEvent(
+            @RequestBody RegisterEventRequest request,
+            HttpServletRequest httpRequest) {
+        Long authenticatedId = getAuthenticatedUserId(httpRequest);
+        Long userId = (authenticatedId != null) ? authenticatedId : request.getUserId();
+        if (userId == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("Unauthorized user"));
+        }
         EventRegistration registration = eventRegistrationService.registerForEvent(
-            request.getUserId(), 
+            userId, 
             request.getEventId(),
             request.getPaymentType(),
             request.getPaymentId()
@@ -184,7 +194,11 @@ public class EventController {
     }
 
     @GetMapping("/{id}/is-registered")
-    public ResponseEntity<ApiResponse<Boolean>> isRegistered(@PathVariable Long id, @RequestParam Long userId) {
-        return ResponseEntity.ok(ApiResponse.success("Status fetched", eventRegistrationService.isUserRegistered(userId, id)));
+    public ResponseEntity<ApiResponse<Boolean>> isRegistered(@PathVariable Long id, HttpServletRequest request) {
+        Long authenticatedId = getAuthenticatedUserId(request);
+        if (authenticatedId == null) {
+            return ResponseEntity.status(401).body(ApiResponse.error("Unauthorized"));
+        }
+        return ResponseEntity.ok(ApiResponse.success("Status fetched", eventRegistrationService.isUserRegistered(authenticatedId, id)));
     }
 }

@@ -36,8 +36,9 @@ public class CartController {
     }
 
     @PostMapping("/items")
-    public ResponseEntity<ApiResponse<CartItem>> addPaintingToCart(@RequestBody AddCartItemRequest request) {
-        CartItem item = cartService.addPaintingToCart(request.getUserId(), request.getPaintingId(), request.getQuantity());
+    public ResponseEntity<ApiResponse<CartItem>> addPaintingToCart(@RequestBody AddCartItemRequest addRequest, HttpServletRequest request) {
+        Long userId = getAuthenticatedUserId(request);
+        CartItem item = cartService.addPaintingToCart(userId, addRequest.getPaintingId(), addRequest.getQuantity());
         return ResponseEntity.ok(ApiResponse.success("Painting added to cart successfully", item));
     }
 

@@ -30,11 +30,12 @@ public class OrderController {
     }
 
     @PostMapping("/checkout")
-    public ResponseEntity<ApiResponse<Order>> checkout(@RequestBody CheckoutRequest request) {
+    public ResponseEntity<ApiResponse<Order>> checkout(@RequestBody CheckoutRequest request, HttpServletRequest httpRequest) {
+        Long userId = getAuthenticatedUserId(httpRequest);
         Order.PaymentType paymentType = request.getPaymentType() == null || request.getPaymentType().isBlank()
                 ? Order.PaymentType.COD :
                 Order.PaymentType.valueOf(request.getPaymentType().toUpperCase());
-        Order order = orderService.checkout(request.getUserId(), paymentType, request.getPaymentId(), request.getPaintingId());
+        Order order = orderService.checkout(userId, paymentType, request.getPaymentId(), request.getPaintingId());
         return ResponseEntity.ok(ApiResponse.success("Checkout completed successfully", order));
     }
 
@@ -50,8 +51,14 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<ApiResponse<Order>> getOrderById(@PathVariable Long orderId) {
-        return ResponseEntity.ok(ApiResponse.success("Order fetched successfully", orderService.getOrderById(orderId)));
+    public ResponseEntity<ApiResponse<Order>> getOrderById(@PathVariable Long orderId, HttpServletRequest request) {
+        Long userId = getAuthenticatedUserId(request);
+        Order order = orderService.getOrderById(orderId);
+        // Only allow access if order belongs to the requesting user OR if admin (admin check can be added later)
+        if (!order.getUser().getId().equals(userId)) {
+            return ResponseEntity.status(403).body(ApiResponse.error("Access denied"));
+        }
+        return ResponseEntity.ok(ApiResponse.success("Order fetched successfully", order));
     }
 
     private Long getAuthenticatedUserId(HttpServletRequest request) {

@@ -27,7 +27,12 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<User>>> getAllUsers() {
+    public ResponseEntity<ApiResponse<Object>> getAllUsers(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(defaultValue = "10") int size) {
+        if (page != null) {
+            return ResponseEntity.ok(ApiResponse.success("Users page fetched successfully", userService.getUsersPage(page, size)));
+        }
         return ResponseEntity.ok(ApiResponse.success("Users fetched successfully", userService.getAllUsers()));
     }
 

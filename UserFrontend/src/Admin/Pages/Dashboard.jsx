@@ -38,24 +38,49 @@ const Dashboard = () => {
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
     let isActive = true;
 
-    const fetchCollection = async (endpoint) => {
-      const response = await fetch(`${url}${endpoint}`, { headers });
-      if (!response.ok) throw new Error(`Unable to load ${endpoint}`);
-      const payload = await response.json();
-      return Array.isArray(payload.data) ? payload.data : [];
-    };
-
     const loadSummary = async () => {
+      // Primary: Call dedicated fast /admin/stats endpoint
       try {
+        const response = await fetch(`${url}/admin/stats`, { headers });
+        if (response.ok) {
+          const payload = await response.json();
+          if (payload && payload.success && payload.data && isActive) {
+            setSummary({
+              users: payload.data.users ?? 0,
+              paintings: payload.data.paintings ?? 0,
+              events: payload.data.events ?? 0,
+              sales: payload.data.sales ?? 0,
+            });
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Dedicated stats endpoint error, trying fallback:", err);
+      }
+
+      // Secondary Fallback: Multi-endpoint collection fetch
+      try {
+        const fetchSafe = async (ep) => {
+          try {
+            const res = await fetch(`${url}${ep}`, { headers });
+            const json = await res.json();
+            const rawData = json.data || (Array.isArray(json) ? json : []);
+            return Array.isArray(rawData) ? rawData : (rawData.content || []);
+          } catch (e) {
+            return [];
+          }
+        };
+
         const [users, paintings, events, orders] = await Promise.all([
-          fetchCollection("/users"),
-          fetchCollection("/paintings"),
-          fetchCollection("/events"),
-          fetchCollection("/orders"),
+          fetchSafe("/users"),
+          fetchSafe("/paintings"),
+          fetchSafe("/events"),
+          fetchSafe("/admin/orders"),
         ]);
+
         const sales = orders
-          .filter((order) => order.orderStatus !== "REJECT" && order.orrderStatus !== "REJECT")
-          .reduce((total, order) => total + Number(order.totalAmount || 0), 0);
+          .filter((o) => o.orderStatus !== "REJECT" && o.orrderStatus !== "REJECT")
+          .reduce((total, o) => total + Number(o.totalAmount || 0), 0);
 
         if (isActive) {
           setSummary({ users: users.length, paintings: paintings.length, events: events.length, sales });
@@ -66,7 +91,7 @@ const Dashboard = () => {
     };
 
     loadSummary();
-    const refreshId = window.setInterval(loadSummary, 30000);
+    const refreshId = window.setInterval(loadSummary, 15000);
     return () => {
       isActive = false;
       window.clearInterval(refreshId);

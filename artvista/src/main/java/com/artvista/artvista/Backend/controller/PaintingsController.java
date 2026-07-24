@@ -71,7 +71,12 @@ public class PaintingsController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Painting>>> getAllPaintings() {
+    public ResponseEntity<ApiResponse<Object>> getAllPaintings(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(defaultValue = "10") int size) {
+        if (page != null) {
+            return ResponseEntity.ok(ApiResponse.success("Paintings page fetched successfully", paintingService.getPaintingsPage(page, size)));
+        }
         return ResponseEntity.ok(ApiResponse.success("Paintings fetched successfully", paintingService.getAllPaintings()));
     }
 

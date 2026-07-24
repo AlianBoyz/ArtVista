@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useToast } from "../../Context/ToastProvider";
 import "./ManageArtist.css";
 
 const url = import.meta.env.VITE_BASE_URL;
 const imageUrl = import.meta.env.VITE_IMAGE_BASE_URL;
 
 const ManageArtist = () => {
+  const { showToast, showConfirm } = useToast();
   const [artists, setArtists] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -12,21 +14,57 @@ const ManageArtist = () => {
   const [bio, setBio] = useState("");
   const [image, setImage] = useState(null);
 
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetchArtists();
+    fetchArtists(0, true);
   }, []);
 
-  const fetchArtists = async () => {
-    const response = await fetch(`${url}/artists`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+          document.documentElement.offsetHeight - 200 &&
+        hasMore &&
+        !loading
+      ) {
+        const nextPage = page + 1;
+        setPage(nextPage);
+        fetchArtists(nextPage, false);
+      }
+    };
 
-    const data = await response.json();
-    setArtists(data.data);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [page, hasMore, loading]);
+
+  const fetchArtists = async (pageNum = 0, reset = false) => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const response = await fetch(`${url}/artists?page=${pageNum}&size=10`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (data.success && data.data) {
+        const newItems = data.data.content || [];
+        const isLast = data.data.last ?? true;
+
+        setArtists((prev) => (reset ? newItems : [...prev, ...newItems]));
+        setHasMore(!isLast);
+      }
+    } catch (err) {
+      console.error("Error fetching artists:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const openAddModal = () => {
@@ -44,18 +82,16 @@ const ManageArtist = () => {
     setShowModal(true);
   };
 
-  const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Delete this artist?");
-    if (!confirmDelete) return;
-
-    await fetch(`${url}/artists/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  const handleDelete = (id) => {
+    showConfirm("Are you sure you want to delete this artist? This action cannot be undone.", async () => {
+      await fetch(`${url}/artists/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      showToast("Artist deleted successfully.", "success");
+      setPage(0);
+      fetchArtists(0, true);
     });
-
-    fetchArtists();
   };
 
   const handleSubmit = async (e) => {
@@ -88,7 +124,8 @@ const ManageArtist = () => {
     if (response.ok) {
       setShowModal(false);
       setEditId(null);
-      fetchArtists();
+      setPage(0);
+      fetchArtists(0, true);
     }
   };
 

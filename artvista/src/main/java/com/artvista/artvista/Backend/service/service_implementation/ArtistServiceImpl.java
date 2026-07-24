@@ -4,6 +4,9 @@ import com.artvista.artvista.Backend.model.Artist;
 import com.artvista.artvista.Backend.exception.ResourceNotFoundException;
 import com.artvista.artvista.Backend.repository.ArtistRepository;
 import com.artvista.artvista.Backend.service.ArtistService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,6 +43,11 @@ public class ArtistServiceImpl implements ArtistService {
     @Override
     public List<Artist> getAllArtists() {
         return artistRepository.findAll();
+    }
+
+    @Override
+    public Page<Artist> getArtistsPage(int page, int size) {
+        return artistRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")));
     }
 
     @Override

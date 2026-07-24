@@ -1,6 +1,7 @@
 import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../Context/AuthProvider";
+import { useToast } from "../Context/ToastProvider";
 import { jwtDecode } from "jwt-decode";
 import "./AuthPages.css";
 
@@ -12,6 +13,7 @@ const Signup = () => {
 
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
+  const { showToast } = useToast();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -63,7 +65,7 @@ const Signup = () => {
         }
 
       } else {
-        alert(data.message);
+        showToast(data.message || "Signup failed. Please try again.", "error");
       }
 
     } catch (error) {

@@ -13,6 +13,9 @@ import com.artvista.artvista.Backend.repository.OrderRepository;
 import com.artvista.artvista.Backend.repository.UserRepository;
 import com.artvista.artvista.Backend.service.OrderService;
 import com.artvista.artvista.Backend.repository.PaintingsRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -145,6 +148,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
+    }
+
+    @Override
+    public Page<Order> getOrdersPage(int page, int size) {
+        return orderRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")));
     }
 
     @Override

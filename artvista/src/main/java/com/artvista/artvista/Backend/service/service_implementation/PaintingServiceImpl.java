@@ -4,6 +4,9 @@ import com.artvista.artvista.Backend.model.Painting;
 import com.artvista.artvista.Backend.exception.ResourceNotFoundException;
 import com.artvista.artvista.Backend.repository.PaintingsRepository;
 import com.artvista.artvista.Backend.service.PaintingService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,6 +43,11 @@ public class PaintingServiceImpl implements PaintingService {
     @Override
     public List<Painting> getAllPaintings() {
         return paintingRepository.findAll();
+    }
+
+    @Override
+    public Page<Painting> getPaintingsPage(int page, int size) {
+        return paintingRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")));
     }
 
     @Override

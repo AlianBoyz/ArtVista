@@ -21,6 +21,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.artvista.artvista.Backend.repository.UserRepository;
+import com.artvista.artvista.Backend.repository.PaintingsRepository;
+import com.artvista.artvista.Backend.repository.EventRepository;
+import com.artvista.artvista.Backend.repository.OrderRepository;
+import com.artvista.artvista.Backend.repository.EventRegistrationRepository;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -31,13 +37,26 @@ public class AdminController {
     private final OrderService orderService;
     private final EventRegistrationService eventRegistrationService;
     private final ComplaintService complaintService;
+    private final UserRepository userRepository;
+    private final PaintingsRepository paintingsRepository;
+    private final EventRepository eventRepository;
+    private final OrderRepository orderRepository;
+    private final EventRegistrationRepository eventRegistrationRepository;
 
     public AdminController(AdminService adminService, OrderService orderService,
-            EventRegistrationService eventRegistrationService, ComplaintService complaintService) {
+            EventRegistrationService eventRegistrationService, ComplaintService complaintService,
+            UserRepository userRepository, PaintingsRepository paintingsRepository,
+            EventRepository eventRepository, OrderRepository orderRepository,
+            EventRegistrationRepository eventRegistrationRepository) {
         this.adminService = adminService;
         this.orderService = orderService;
         this.eventRegistrationService = eventRegistrationService;
         this.complaintService = complaintService;
+        this.userRepository = userRepository;
+        this.paintingsRepository = paintingsRepository;
+        this.eventRepository = eventRepository;
+        this.orderRepository = orderRepository;
+        this.eventRegistrationRepository = eventRegistrationRepository;
     }
 
     @PostMapping("/login")
@@ -45,8 +64,41 @@ public class AdminController {
         return ResponseEntity.ok(ApiResponse.success("Admin login successful", adminService.login(request)));
     }
 
+    @GetMapping("/stats")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getDashboardStats() {
+        long usersCount = userRepository.count();
+        long paintingsCount = paintingsRepository.count();
+        long eventsCount = eventRepository.count();
+
+        BigDecimal paintingSales = orderRepository.findAll().stream()
+                .filter(o -> o.getOrrderStatus() != Order.OrderStatus.REJECT)
+                .map(o -> o.getTotalAmount() != null ? o.getTotalAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal eventSales = eventRegistrationRepository.findAll().stream()
+                .filter(r -> r.getStatus() != EventRegistration.RegistrationStatus.REJECT)
+                .map(r -> r.getEvent() != null && r.getEvent().getPrice() != null ? r.getEvent().getPrice() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalSales = paintingSales.add(eventSales);
+
+        Map<String, Object> stats = Map.of(
+                "users", usersCount,
+                "paintings", paintingsCount,
+                "events", eventsCount,
+                "sales", totalSales
+        );
+
+        return ResponseEntity.ok(ApiResponse.success("Dashboard stats fetched successfully", stats));
+    }
+
     @GetMapping("/orders")
-    public ResponseEntity<ApiResponse<List<Order>>> getAllOrders() {
+    public ResponseEntity<ApiResponse<Object>> getAllOrders(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(defaultValue = "10") int size) {
+        if (page != null) {
+            return ResponseEntity.ok(ApiResponse.success("Orders page fetched successfully", orderService.getOrdersPage(page, size)));
+        }
         return ResponseEntity.ok(ApiResponse.success("Orders fetched successfully", orderService.getAllOrders()));
     }
 

@@ -11,22 +11,58 @@ const ManageOrders = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [selectedRegistration, setSelectedRegistration] = useState(null);
 
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetchOrders();
+    fetchOrders(0, true);
     fetchEventRegistrations();
   }, []);
 
-  const fetchOrders = async () => {
-    const response = await fetch(`${url}/orders`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+          document.documentElement.offsetHeight - 200 &&
+        hasMore &&
+        !loading
+      ) {
+        const nextPage = page + 1;
+        setPage(nextPage);
+        fetchOrders(nextPage, false);
+      }
+    };
 
-    const data = await response.json();
-    setOrders(data.data);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [page, hasMore, loading]);
+
+  const fetchOrders = async (pageNum = 0, reset = false) => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const response = await fetch(`${url}/admin/orders?page=${pageNum}&size=10`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+      if (data.success && data.data) {
+        const newItems = data.data.content || [];
+        const isLast = data.data.last ?? true;
+
+        setOrders((prev) => (reset ? newItems : [...prev, ...newItems]));
+        setHasMore(!isLast);
+      }
+    } catch (err) {
+      console.error("Error fetching orders:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchEventRegistrations = async () => {
@@ -36,6 +72,7 @@ const ManageOrders = () => {
     const data = await response.json();
     setEventRegistrations(data.data || []);
   };
+
 
   const openProcessModal = (order) => {
     setSelectedOrder(order);
@@ -55,7 +92,8 @@ const ManageOrders = () => {
     });
 
     setShowModal(false);
-    fetchOrders();
+    setPage(0);
+    fetchOrders(0, true);
   };
 
   const updateRegistrationStatus = async (status) => {

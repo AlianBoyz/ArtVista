@@ -1,6 +1,7 @@
 package com.artvista.artvista.Backend.service;
 
 import com.artvista.artvista.Backend.model.Order;
+import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface OrderService {
@@ -12,6 +13,8 @@ public interface OrderService {
     List<Order> getOrdersByUser(Long userId);
 
     List<Order> getAllOrders();
+
+    Page<Order> getOrdersPage(int page, int size);
 
     Order getOrderById(Long orderId);
 

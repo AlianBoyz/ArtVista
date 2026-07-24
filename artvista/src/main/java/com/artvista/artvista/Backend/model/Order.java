@@ -103,8 +103,14 @@ public class Order {
     public OrderStatus getOrrderStatus() {
         return orrderStatus;
     }
+    public OrderStatus getOrderStatus() {
+        return orrderStatus;
+    }
     public void setOrrderStatus(OrderStatus orrderStatus) {
         this.orrderStatus = orrderStatus;
+    }
+    public void setOrderStatus(OrderStatus orderStatus) {
+        this.orrderStatus = orderStatus;
     }
     public User getUser() {
         return user;

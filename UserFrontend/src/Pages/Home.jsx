@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState, useContext } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { AuthContext } from "../Context/AuthProvider";
+import { useToast } from "../Context/ToastProvider";
 import {
   Box,
   Container,
@@ -63,8 +65,94 @@ const imageSx = {
 function Home() {
   const [paintings, setPaintings] = useState([]);
   const [events, setEvents] = useState([]);
+  const [paymentSuccess, setPaymentSuccess] = useState(null);
+  const [featuredHomeItem, setFeaturedHomeItem] = useState(null);
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const { token } = useContext(AuthContext);
+  const { showToast } = useToast();
+
+  useEffect(() => {
+    if (!featuredHomeItem && (paintings.length > 0 || events.length > 0)) {
+      const combined = [
+        ...paintings.map((p) => ({ ...p, itemType: "PAINTING" })),
+        ...events.map((e) => ({ ...e, itemType: "EVENT" })),
+      ];
+      if (combined.length > 0) {
+        const randomIndex = Math.floor(Math.random() * combined.length);
+        setFeaturedHomeItem(combined[randomIndex]);
+      }
+    }
+  }, [paintings, events]);
+
+  // ── Cashfree post-payment order finalization ──────────────────────────────
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const cashfreeOrderId = params.get("order_id");
+    if (!cashfreeOrderId) return;
+
+    const raw = sessionStorage.getItem("cashfree_pending_order");
+    if (!raw) return;
+
+    let pending;
+    try { pending = JSON.parse(raw); } catch { return; }
+
+    sessionStorage.removeItem("cashfree_pending_order");
+    // Clean URL
+    window.history.replaceState({}, "", "/home");
+
+    finalizeCashfreeOrder(pending, cashfreeOrderId);
+  }, [location.search]);
+
+  const finalizeCashfreeOrder = async (pending, cashfreeOrderId) => {
+    const authToken = token || localStorage.getItem("token");
+    if (!authToken) return;
+
+    try {
+      if (pending.eventId) {
+        // Event registration
+        const body = {
+          eventId: pending.eventId,
+          paymentType: "ONLINE",
+          paymentId: cashfreeOrderId,
+        };
+        const res = await fetch(`${url}/events/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (data.success) {
+          setPaymentSuccess("Event registration successful! Payment confirmed.");
+          setTimeout(() => navigate("/orders"), 2500);
+        } else {
+          showToast(data.message || "Failed to complete event registration.", "error");
+        }
+      } else {
+        // Painting / cart order
+        const body = { paymentType: "ONLINE", paymentId: cashfreeOrderId };
+        if (pending.paintingId) body.paintingId = pending.paintingId;
+
+        const res = await fetch(`${url}/orders/checkout`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (data.success) {
+          setPaymentSuccess(`Order placed! Your Order ID: #${data.data?.id || cashfreeOrderId}`);
+          setTimeout(() => navigate("/orders"), 2500);
+        } else {
+          showToast(data.message || "Failed to finalize order.", "error");
+        }
+      }
+    } catch (err) {
+      console.error("Failed to finalize Cashfree order:", err);
+      showToast("Payment was received but order could not be saved. Please contact support.", "error");
+    }
+  };
+  // ─────────────────────────────────────────────────────────────────────────
 
   useEffect(() => {
     getPaintings();
@@ -72,21 +160,57 @@ function Home() {
   }, []);
 
   const getPaintings = async () => {
-    const res = await fetch(`${url}/paintings`);
-    const json = await res.json();
-    const random = json.data.sort(() => 0.5 - Math.random()).slice(0, 10);
-    setPaintings(random);
+    try {
+      const res = await fetch(`${url}/paintings?page=0&size=8`);
+      const json = await res.json();
+      const list = json?.data?.content || (Array.isArray(json?.data) ? json.data.slice(0, 8) : []);
+      setPaintings(list);
+    } catch (e) {
+      console.error("Failed to fetch home paintings:", e);
+    }
   };
 
   const getEvents = async () => {
-    const res = await fetch(`${url}/events`);
-    const json = await res.json();
-    const latest = json.data.slice().reverse().slice(0, 8);
-    setEvents(latest);
+    try {
+      const res = await fetch(`${url}/events?page=0&size=6`);
+      const json = await res.json();
+      const list = json?.data?.content || (Array.isArray(json?.data) ? json.data.slice(0, 6) : []);
+      setEvents(list);
+    } catch (e) {
+      console.error("Failed to fetch home events:", e);
+    }
   };
 
   return (
     <Box sx={{ bgcolor: "white" }}>
+      {/* Payment Success Banner */}
+      {paymentSuccess && (
+        <Box
+          sx={{
+            position: "fixed",
+            top: 80,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 9999,
+            bgcolor: "#166534",
+            color: "#fff",
+            px: 4,
+            py: 2,
+            borderRadius: 3,
+            boxShadow: "0 8px 30px rgba(0,0,0,0.25)",
+            display: "flex",
+            alignItems: "center",
+            gap: 1.5,
+            fontSize: "1rem",
+            fontWeight: 600,
+          }}
+        >
+          ✅ {paymentSuccess} &nbsp;
+          <span style={{ fontWeight: 400, fontSize: "0.85rem", opacity: 0.85 }}>
+            Redirecting to orders...
+          </span>
+        </Box>
+      )}
       <Box
         sx={{
           ...watercolorBg,
@@ -164,44 +288,90 @@ function Home() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.7, delay: 0.15 }}
               >
-                {paintings.length > 0 && (
-                  <Card
-                    elevation={0}
+                <Box
+                  onClick={() => {
+                    if (featuredHomeItem) {
+                      if (featuredHomeItem.itemType === "EVENT") {
+                        navigate(`/events/${featuredHomeItem.id}`);
+                      } else {
+                        navigate(`/paintingDetails/${featuredHomeItem.id}`);
+                      }
+                    }
+                  }}
+                  sx={{
+                    display: "inline-block",
+                    position: "relative",
+                    borderRadius: "8px",
+                    overflow: "hidden",
+                    maxWidth: { xs: "100%", sm: 510 },
+                    maxHeight: 450,
+                    mx: { xs: "auto", md: "auto" },
+                    cursor: featuredHomeItem ? "pointer" : "default",
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.16)",
+                    transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                    "&:hover": {
+                      transform: "translateY(-4px)",
+                      boxShadow: "0 14px 32px rgba(0,0,0,0.22)",
+                    },
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src={
+                      featuredHomeItem?.imageUrl
+                        ? `${imageUrl}${featuredHomeItem.imageUrl}`
+                        : "/artvista-auth/desi-art.png"
+                    }
+                    alt={featuredHomeItem?.title || "Featured Item"}
                     sx={{
-                      borderRadius: 0,
-                      overflow: "hidden",
-                      width: { xs: "100%", sm: 330 },
-                      mx: { xs: "auto", md: "auto" },
-                      boxShadow: "0 10px 24px rgba(0,0,0,0.18)",
-                      border: "1px solid rgba(0,0,0,0.1)",
+                      maxWidth: "100%",
+                      maxHeight: 450,
+                      width: "auto",
+                      height: "auto",
+                      display: "block",
+                      borderRadius: "8px",
                     }}
-                  >
-                    <CardMedia
-                      component="img"
-                      image={`${imageUrl}${paintings[0].imageUrl}`}
-                      alt="Featured Art"
-                      sx={{ ...imageSx, height: { xs: 330, sm: 420 } }}
-                    />
+                  />
+                  {featuredHomeItem && (
                     <Box
                       sx={{
-                        px: 1.5,
-                        py: 1,
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        gap: 2,
-                        bgcolor: "white",
+                        position: "absolute",
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.45) 70%, transparent 100%)",
+                        p: 2,
+                        color: "white",
                       }}
                     >
-                      <Typography variant="caption" sx={{ minWidth: 0, fontWeight: 500 }} noWrap>
-                        {paintings[0].title}
+                      <Typography
+                        variant="subtitle2"
+                        sx={{
+                          fontWeight: 700,
+                          fontSize: "0.95rem",
+                          lineHeight: 1.25,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          mb: 0.5,
+                        }}
+                      >
+                        {featuredHomeItem.title}
                       </Typography>
-                      <Typography variant="caption" sx={{ flexShrink: 0, fontWeight: 800 }}>
-                        Rs {paintings[0].price}
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          fontWeight: 700,
+                          color: "#fbbf24",
+                          fontSize: "0.9rem",
+                          display: "block",
+                        }}
+                      >
+                        ₹{featuredHomeItem.price ? Number(featuredHomeItem.price).toLocaleString("en-IN") : "0"}
                       </Typography>
                     </Box>
-                  </Card>
-                )}
+                  )}
+                </Box>
               </MotionDiv>
             </Grid>
           </Grid>

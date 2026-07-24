@@ -1,5 +1,6 @@
 import { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../Context/AuthProvider";
+import { useToast } from "../Context/ToastProvider";
 import { useNavigate, useLocation } from "react-router-dom";
 import { 
   Box, 
@@ -33,6 +34,7 @@ const watercolorBg = {
 
 function Checkout() {
   const { token } = useContext(AuthContext);
+  const { showToast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const paintingId = location.state?.paintingId;
@@ -106,7 +108,7 @@ function Checkout() {
 
   const handleCheckout = async () => {
     if (!paintingId && !eventId && (!cart || !cart.items || cart.items.length === 0)) {
-      alert("Your cart is empty");
+      showToast("Your cart is empty. Please add items before checkout.", "warning");
       return;
     }
 
@@ -119,48 +121,60 @@ function Checkout() {
 
   const handleOnlinePayment = async () => {
     try {
-      const userId = localStorage.getItem("userId");
       const amount = getTotalPrice();
 
       // 1. Create Cashfree Order in Backend
-      let orderUrl = `${url}/cashfree/create-order?userId=${userId}&amount=${amount}`;
+      const orderUrl = `${url}/cashfree/create-order?amount=${amount}`;
       const res = await fetch(orderUrl, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+        headers: { Authorization: `Bearer ${token}` }
       });
 
       const data = await res.json();
       if (!data.success) {
-        alert(data.message || "Failed to initiate online payment");
+        showToast(data.message || "Failed to initiate online payment.", "error");
         return;
       }
 
       const { payment_session_id, order_id } = data.data;
 
-      // 2. Open Cashfree Checkout
-      if (!cashfree) {
-        alert("Cashfree SDK not loaded");
+      // 2. Save pending order context to sessionStorage so it survives the redirect
+      sessionStorage.setItem(
+        "cashfree_pending_order",
+        JSON.stringify({
+          cashfreeOrderId: order_id,
+          paintingId: paintingId || null,
+          eventId: eventId || null,
+          isCartOrder: !paintingId && !eventId,
+        })
+      );
+
+      // 3. Open Cashfree Checkout
+      const cf = window.Cashfree ? window.Cashfree({ mode: "sandbox" }) : null;
+      if (!cf) {
+        showToast("Cashfree SDK not loaded. Please refresh and try again.", "warning");
         return;
       }
 
-      cashfree.checkout({
+      cf.checkout({
         paymentSessionId: payment_session_id,
-        returnUrl: `${window.location.origin}/home`
+        returnUrl: `${window.location.origin}/home?order_id=${order_id}`,
       }).then(async (result) => {
         if (result.error) {
-          alert(result.error.message);
+          showToast(result.error.message || "Payment failed. Please try again.", "error");
+          sessionStorage.removeItem("cashfree_pending_order");
         } else if (result.redirect) {
-          console.log("Redirecting...");
+          // Browser will redirect — finalizeOrder handled in Home.jsx
         } else {
+          // Non-redirect success (rare) — finalize directly
+          sessionStorage.removeItem("cashfree_pending_order");
           await finalizeOrder("ONLINE", order_id);
         }
       });
 
     } catch (err) {
       console.error(err);
-      alert("Error during online payment initiation");
+      showToast("Error during online payment initiation.", "error");
     }
   };
 
@@ -191,19 +205,13 @@ function Checkout() {
 
         const data = await res.json();
         if (data.success) {
-          if (data.data) {
-            try {
-              const existing = JSON.parse(localStorage.getItem("user_event_registrations") || "[]");
-              existing.push(data.data);
-              localStorage.setItem("user_event_registrations", JSON.stringify(existing));
-            } catch (e) {
-              console.error("Failed to save local registration record:", e);
-            }
-          }
-          alert("Successfully registered for the event! Payment " + (pType === "COD" ? "Pending (COD)" : "Confirmed"));
-          navigate("/events");
+          showToast(
+            `Successfully registered for the event! Payment ${pType === "COD" ? "pending (COD)" : "confirmed"}.`,
+            "success"
+          );
+          navigate("/orders");
         } else {
-          alert(data.message || "Registration failed");
+          showToast(data.message || "Registration failed.", "error");
         }
         return;
       }
@@ -228,18 +236,19 @@ function Checkout() {
 
       const data = await res.json();
       if (data.success) {
-        if (pType === "COD") {
-          alert("Order Placed Successfully! Thank you for shopping with ArtVista. Your Order ID: #" + data.data.id);
-        } else {
-          alert("Payment Confirmed! Order placed successfully! Your Order ID: #" + data.data.id);
-        }
-        navigate("/home");
+        showToast(
+          pType === "COD"
+            ? `Order placed! Your Order ID: #${data.data.id}. Pay on delivery.`
+            : `Payment confirmed! Order placed. Your Order ID: #${data.data.id}.`,
+          "success"
+        );
+        navigate("/orders");
       } else {
-        alert(data.message || "Order finalization failed");
+        showToast(data.message || "Order finalization failed.", "error");
       }
     } catch (err) {
       console.error(err);
-      alert("Error finalizing order");
+      showToast("Error finalizing order. Please contact support.", "error");
     }
   };
 

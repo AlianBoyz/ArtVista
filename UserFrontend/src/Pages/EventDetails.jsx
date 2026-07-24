@@ -78,11 +78,10 @@ function EventDetails() {
   };
 
   const checkRegistrationStatus = async () => {
-    const userId = localStorage.getItem("userId");
-    if (!token || !userId) return;
+    if (!token) return;
 
     try {
-      const res = await fetch(`${url}/events/${id}/is-registered?userId=${userId}`, {
+      const res = await fetch(`${url}/events/${id}/is-registered`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json();

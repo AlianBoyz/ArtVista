@@ -5,6 +5,9 @@ import com.artvista.artvista.Backend.model.User;
 import com.artvista.artvista.Backend.exception.ResourceNotFoundException;
 import com.artvista.artvista.Backend.repository.UserRepository;
 import com.artvista.artvista.Backend.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,6 +35,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    @Override
+    public Page<User> getUsersPage(int page, int size) {
+        return userRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id")));
     }
 
     @Override

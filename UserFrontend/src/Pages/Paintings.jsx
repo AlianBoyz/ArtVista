@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Avatar,
@@ -51,31 +51,97 @@ function Paintings() {
 
   const navigate = useNavigate();
 
+  const [artistsList, setArtistsList] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [featuredPainting, setFeaturedPainting] = useState(null);
+
   useEffect(() => {
-    getPaintings();
+    getArtists();
   }, []);
 
-  const getPaintings = async () => {
-    const res = await fetch(`${url}/paintings`);
-    const json = await res.json();
-    setAllPaintings(json.data);
+  useEffect(() => {
+    if (allPaintings.length > 0 && !featuredPainting) {
+      const randomIndex = Math.floor(Math.random() * allPaintings.length);
+      setFeaturedPainting(allPaintings[randomIndex]);
+    }
+  }, [allPaintings]);
+
+  useEffect(() => {
+    getPaintings(page - 1);
+  }, [page]);
+
+  const getArtists = async () => {
+    try {
+      const res = await fetch(`${url}/artists`);
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data)) {
+        setArtistsList(json.data);
+      }
+    } catch (e) {
+      console.error("Failed to fetch artists for filters:", e);
+    }
+  };
+
+  const pageCache = useRef(new Map());
+  const [isPageLoading, setIsPageLoading] = useState(false);
+
+  const getPaintings = async (pageNum = 0) => {
+    // Instant cache hit for 0ms page switching
+    if (pageCache.current.has(pageNum)) {
+      const cached = pageCache.current.get(pageNum);
+      setAllPaintings(cached.content);
+      setTotalPages(cached.totalPages);
+      setIsPageLoading(false);
+      prefetchNextPage(pageNum, cached.totalPages);
+      return;
+    }
+
+    setIsPageLoading(true);
+    try {
+      const res = await fetch(`${url}/paintings?page=${pageNum}&size=12`);
+      const json = await res.json();
+      if (json.success && json.data) {
+        const content = json.data.content || (Array.isArray(json.data) ? json.data : []);
+        const total = json.data.totalPages || 1;
+
+        pageCache.current.set(pageNum, { content, totalPages: total });
+        setAllPaintings(content);
+        setTotalPages(total);
+
+        prefetchNextPage(pageNum, total);
+      }
+    } catch (e) {
+      console.error("Failed to fetch paintings chunk:", e);
+    } finally {
+      setIsPageLoading(false);
+    }
+  };
+
+  const prefetchNextPage = (currentPageNum, maxPages) => {
+    const nextPage = currentPageNum + 1;
+    if (nextPage < maxPages && !pageCache.current.has(nextPage)) {
+      fetch(`${url}/paintings?page=${nextPage}&size=12`)
+        .then((res) => res.json())
+        .then((json) => {
+          if (json?.success && json?.data?.content) {
+            pageCache.current.set(nextPage, {
+              content: json.data.content,
+              totalPages: json.data.totalPages || maxPages,
+            });
+          }
+        })
+        .catch(() => {});
+    }
   };
 
   const filtersData = useMemo(() => {
-    const artists = [];
     const types = new Set();
-    const seenArtists = new Set();
-
     allPaintings.forEach((painting) => {
-      if (!seenArtists.has(painting.artist.id)) {
-        artists.push(painting.artist);
-        seenArtists.add(painting.artist.id);
-      }
-      types.add(painting.medium);
+      if (painting.medium) types.add(painting.medium);
     });
 
-    return { artists, types: Array.from(types) };
-  }, [allPaintings]);
+    return { artists: artistsList, types: Array.from(types) };
+  }, [artistsList, allPaintings]);
 
   const filteredPaintings = useMemo(() => {
     let result = [...allPaintings];
@@ -85,12 +151,12 @@ function Paintings() {
       result = result.filter(
         (painting) =>
           painting.title.toLowerCase().includes(query) ||
-          painting.artist.name.toLowerCase().includes(query)
+          painting.artist?.name?.toLowerCase().includes(query)
       );
     }
 
     if (selectedArtists.length > 0) {
-      result = result.filter((painting) => selectedArtists.includes(painting.artist.id));
+      result = result.filter((painting) => painting.artist && selectedArtists.includes(painting.artist.id));
     }
 
     if (selectedTypes.length > 0) {
@@ -106,10 +172,7 @@ function Paintings() {
     return result;
   }, [allPaintings, search, selectedArtists, selectedTypes, sortBy]);
 
-  const paginatedPaintings = useMemo(() => {
-    const start = (page - 1) * itemsPerPage;
-    return filteredPaintings.slice(start, start + itemsPerPage);
-  }, [filteredPaintings, page]);
+  const paginatedPaintings = filteredPaintings;
 
   const handleArtistToggle = (id) => {
     setSelectedArtists((prev) => (prev.includes(id) ? prev.filter((artistId) => artistId !== id) : [...prev, id]));
@@ -134,9 +197,9 @@ function Paintings() {
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: { xs: "1fr", md: "1fr 320px" },
+              gridTemplateColumns: { xs: "1fr", md: "1fr 480px" },
               alignItems: "center",
-              gap: { xs: 4, md: 8 },
+              gap: { xs: 4, md: 6 },
             }}
           >
             <MotionDiv
@@ -192,18 +255,85 @@ function Paintings() {
               transition={{ duration: 0.6, delay: 0.15 }}
             >
               <Box
-                component="img"
-                src="/artvista-auth/desi-art.png"
-                alt="Original artwork"
-                sx={{
-                  width: { xs: "100%", sm: 320 },
-                  height: { xs: 250, sm: 280 },
-                  objectFit: "cover",
-                  display: "block",
-                  mx: { xs: "auto", md: 0 },
-                  boxShadow: "0 8px 20px rgba(0,0,0,0.12)",
+                onClick={() => {
+                  if (featuredPainting) {
+                    navigate(`/paintingDetails/${featuredPainting.id}`);
+                  }
                 }}
-              />
+                sx={{
+                  display: "inline-block",
+                  position: "relative",
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                  maxWidth: { xs: "100%", sm: 510 },
+                  maxHeight: 450,
+                  mx: { xs: "auto", md: 0 },
+                  cursor: featuredPainting ? "pointer" : "default",
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.16)",
+                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                  "&:hover": {
+                    transform: "translateY(-4px)",
+                    boxShadow: "0 14px 32px rgba(0,0,0,0.22)",
+                  },
+                }}
+              >
+                <Box
+                  component="img"
+                  src={
+                    featuredPainting?.imageUrl
+                      ? `${imageUrl}${featuredPainting.imageUrl}`
+                      : "/artvista-auth/desi-art.png"
+                  }
+                  alt={featuredPainting?.title || "Featured Painting"}
+                  sx={{
+                    maxWidth: "100%",
+                    maxHeight: 450,
+                    width: "auto",
+                    height: "auto",
+                    display: "block",
+                    borderRadius: "8px",
+                  }}
+                />
+                {featuredPainting && (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.45) 70%, transparent 100%)",
+                      p: 2,
+                      color: "white",
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: "0.95rem",
+                        lineHeight: 1.25,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        mb: 0.5,
+                      }}
+                    >
+                      {featuredPainting.title}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 700,
+                        color: "#fbbf24",
+                        fontSize: "0.9rem",
+                        display: "block",
+                      }}
+                    >
+                      ₹{featuredPainting.price ? Number(featuredPainting.price).toLocaleString("en-IN") : "0"}
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
             </MotionDiv>
           </Box>
         </Container>
@@ -384,6 +514,8 @@ function Paintings() {
                         component="img"
                         src={`${imageUrl}${painting.imageUrl}`}
                         alt={painting.title}
+                        loading="lazy"
+                        decoding="async"
                         sx={{
                           width: "100%",
                           height: { xs: 260, sm: 250, md: 230 },
@@ -422,7 +554,7 @@ function Paintings() {
 
             <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
               <Pagination
-                count={Math.ceil(filteredPaintings.length / itemsPerPage)}
+                count={totalPages}
                 page={page}
                 onChange={(event, value) => setPage(value)}
                 shape="rounded"

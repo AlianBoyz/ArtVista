@@ -1,6 +1,7 @@
 package com.artvista.artvista.Backend.service;
 
 import com.artvista.artvista.Backend.model.Artist;
+import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface ArtistService {
@@ -12,6 +13,8 @@ public interface ArtistService {
     Artist getArtistById(Long id);
 
     List<Artist> getAllArtists();
+
+    Page<Artist> getArtistsPage(int page, int size);
 
     void deleteArtist(Long id);
 }

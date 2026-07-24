@@ -7,6 +7,8 @@ const imageUrl = import.meta.env.VITE_IMAGE_BASE_URL;
 const ManageUsers = () => {
   const [complaints, setComplaints] = useState([]);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [sortBy, setSortBy] = useState("NEWEST");
   const [selectedComplaint, setSelectedComplaint] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -70,22 +72,34 @@ const ManageUsers = () => {
         });
   };
 
-  const filteredComplaints = complaints.filter((c) => {
-    const term = search.toLowerCase();
-    return (
-      (c.name && c.name.toLowerCase().includes(term)) ||
-      (c.email && c.email.toLowerCase().includes(term)) ||
-      (c.subject && c.subject.toLowerCase().includes(term)) ||
-      (c.message && c.message.toLowerCase().includes(term))
-    );
-  });
+  const filteredComplaints = complaints
+    .filter((c) => {
+      // 1. Status Filter
+      if (statusFilter === "PENDING" && c.status === "ADDRESSED") return false;
+      if (statusFilter === "ADDRESSED" && c.status !== "ADDRESSED") return false;
+
+      // 2. Search Text
+      const term = search.toLowerCase();
+      return (
+        !term ||
+        (c.name && c.name.toLowerCase().includes(term)) ||
+        (c.email && c.email.toLowerCase().includes(term)) ||
+        (c.subject && c.subject.toLowerCase().includes(term)) ||
+        (c.message && c.message.toLowerCase().includes(term))
+      );
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.createdAt || a.id || 0).getTime();
+      const dateB = new Date(b.createdAt || b.id || 0).getTime();
+      return sortBy === "OLDEST" ? dateA - dateB : dateB - dateA;
+    });
 
   return (
     <div className="artists-page">
       <section className="artists-header">
         <h1>User Management & Complaints</h1>
 
-        <div className="artists-searchRow">
+        <div className="artists-searchRow" style={{ flexWrap: "wrap", gap: 14 }}>
           <div className="artists-search">
             <input
               type="text"
@@ -99,6 +113,47 @@ const ManageUsers = () => {
                 <path d="m20 20-3.5-3.5" />
               </svg>
             </span>
+          </div>
+
+          <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{
+                padding: "12px 16px",
+                borderRadius: "10px",
+                border: "1px solid #675ed9",
+                background: "rgba(255, 255, 255, 0.9)",
+                fontSize: "0.95rem",
+                fontWeight: 600,
+                color: "#1a1a21",
+                cursor: "pointer",
+                outline: "none",
+              }}
+            >
+              <option value="ALL">All Messages</option>
+              <option value="PENDING">Pending Messages</option>
+              <option value="ADDRESSED">Addressed Messages</option>
+            </select>
+
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              style={{
+                padding: "12px 16px",
+                borderRadius: "10px",
+                border: "1px solid #675ed9",
+                background: "rgba(255, 255, 255, 0.9)",
+                fontSize: "0.95rem",
+                fontWeight: 600,
+                color: "#1a1a21",
+                cursor: "pointer",
+                outline: "none",
+              }}
+            >
+              <option value="NEWEST">Newest First</option>
+              <option value="OLDEST">Oldest First</option>
+            </select>
           </div>
         </div>
       </section>

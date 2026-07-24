@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Avatar,
@@ -60,37 +60,104 @@ function Events() {
 
   const navigate = useNavigate();
 
+  const [organizersList, setOrganizersList] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [featuredEvent, setFeaturedEvent] = useState(null);
+
   useEffect(() => {
-    getEvents();
+    getOrganizers();
   }, []);
 
-  const getEvents = async () => {
-    const res = await fetch(`${url}/events`);
-    const json = await res.json();
-    setAllEvents(json.data);
+  useEffect(() => {
+    if (allEvents.length > 0 && !featuredEvent) {
+      const randomIndex = Math.floor(Math.random() * allEvents.length);
+      setFeaturedEvent(allEvents[randomIndex]);
+    }
+  }, [allEvents]);
+
+  useEffect(() => {
+    getEvents(page - 1);
+  }, [page]);
+
+  const getOrganizers = async () => {
+    try {
+      const res = await fetch(`${url}/artists`);
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data)) {
+        setOrganizersList(json.data);
+      }
+    } catch (e) {
+      console.error("Failed to fetch artists for event filters:", e);
+    }
+  };
+
+  const pageCache = useRef(new Map());
+  const [isPageLoading, setIsPageLoading] = useState(false);
+
+  const getEvents = async (pageNum = 0) => {
+    // Instant cache hit for 0ms page switching
+    if (pageCache.current.has(pageNum)) {
+      const cached = pageCache.current.get(pageNum);
+      setAllEvents(cached.content);
+      setTotalPages(cached.totalPages);
+      setIsPageLoading(false);
+      prefetchNextPage(pageNum, cached.totalPages);
+      return;
+    }
+
+    setIsPageLoading(true);
+    try {
+      const res = await fetch(`${url}/events?page=${pageNum}&size=6`);
+      const json = await res.json();
+      if (json.success && json.data) {
+        const content = json.data.content || (Array.isArray(json.data) ? json.data : []);
+        const total = json.data.totalPages || 1;
+
+        pageCache.current.set(pageNum, { content, totalPages: total });
+        setAllEvents(content);
+        setTotalPages(total);
+
+        prefetchNextPage(pageNum, total);
+      }
+    } catch (e) {
+      console.error("Failed to fetch events chunk:", e);
+    } finally {
+      setIsPageLoading(false);
+    }
+  };
+
+  const prefetchNextPage = (currentPageNum, maxPages) => {
+    const nextPage = currentPageNum + 1;
+    if (nextPage < maxPages && !pageCache.current.has(nextPage)) {
+      fetch(`${url}/events?page=${nextPage}&size=6`)
+        .then((res) => res.json())
+        .then((json) => {
+          if (json?.success && json?.data?.content) {
+            pageCache.current.set(nextPage, {
+              content: json.data.content,
+              totalPages: json.data.totalPages || maxPages,
+            });
+          }
+        })
+        .catch(() => {});
+    }
   };
 
   const filtersData = useMemo(() => {
-    const organizers = [];
     const places = new Set();
     const durations = new Set();
-    const seenArtists = new Set();
 
     allEvents.forEach((event) => {
-      if (event.artist && !seenArtists.has(event.artist.id)) {
-        organizers.push(event.artist);
-        seenArtists.add(event.artist.id);
-      }
       if (event.location) places.add(event.location);
       if (event.duration) durations.add(event.duration);
     });
 
     return {
-      organizers,
+      organizers: organizersList,
       places: Array.from(places),
       durations: Array.from(durations),
     };
-  }, [allEvents]);
+  }, [organizersList, allEvents]);
 
   const filteredEvents = useMemo(() => {
     let result = [...allEvents];
@@ -99,8 +166,8 @@ function Events() {
       const query = search.toLowerCase();
       result = result.filter(
         (event) =>
-          event.title.toLowerCase().includes(query) ||
-          event.location.toLowerCase().includes(query)
+          event.title?.toLowerCase().includes(query) ||
+          event.location?.toLowerCase().includes(query)
       );
     }
 
@@ -125,10 +192,7 @@ function Events() {
     return result;
   }, [allEvents, search, selectedOrganizers, selectedPlaces, selectedDurations, sortBy]);
 
-  const paginatedEvents = useMemo(() => {
-    const start = (page - 1) * itemsPerPage;
-    return filteredEvents.slice(start, start + itemsPerPage);
-  }, [filteredEvents, page]);
+  const paginatedEvents = filteredEvents;
 
   const toggleFilter = (list, setList, item) => {
     setList((prev) => (prev.includes(item) ? prev.filter((value) => value !== item) : [...prev, item]));
@@ -148,9 +212,9 @@ function Events() {
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: { xs: "1fr", md: "1fr 280px" },
+              gridTemplateColumns: { xs: "1fr", md: "1fr 480px" },
               alignItems: "center",
-              gap: { xs: 4, md: 8 },
+              gap: { xs: 4, md: 6 },
             }}
           >
             <MotionDiv
@@ -206,18 +270,85 @@ function Events() {
               transition={{ duration: 0.6, delay: 0.15 }}
             >
               <Box
-                component="img"
-                src="/artvista-auth/color-portrait.png"
-                alt="Event artwork"
-                sx={{
-                  width: { xs: "100%", sm: 280 },
-                  height: { xs: 260, sm: 280 },
-                  objectFit: "cover",
-                  display: "block",
-                  mx: { xs: "auto", md: 0 },
-                  boxShadow: "0 8px 20px rgba(0,0,0,0.12)",
+                onClick={() => {
+                  if (featuredEvent) {
+                    navigate(`/events/${featuredEvent.id}`);
+                  }
                 }}
-              />
+                sx={{
+                  display: "inline-block",
+                  position: "relative",
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                  maxWidth: { xs: "100%", sm: 510 },
+                  maxHeight: 450,
+                  mx: { xs: "auto", md: 0 },
+                  cursor: featuredEvent ? "pointer" : "default",
+                  boxShadow: "0 8px 24px rgba(0,0,0,0.16)",
+                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                  "&:hover": {
+                    transform: "translateY(-4px)",
+                    boxShadow: "0 14px 32px rgba(0,0,0,0.22)",
+                  },
+                }}
+              >
+                <Box
+                  component="img"
+                  src={
+                    featuredEvent?.imageUrl
+                      ? `${imageUrl}${featuredEvent.imageUrl}`
+                      : "/artvista-auth/color-portrait.png"
+                  }
+                  alt={featuredEvent?.title || "Featured Event"}
+                  sx={{
+                    maxWidth: "100%",
+                    maxHeight: 450,
+                    width: "auto",
+                    height: "auto",
+                    display: "block",
+                    borderRadius: "8px",
+                  }}
+                />
+                {featuredEvent && (
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.45) 70%, transparent 100%)",
+                      p: 2,
+                      color: "white",
+                    }}
+                  >
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: "0.95rem",
+                        lineHeight: 1.25,
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        mb: 0.5,
+                      }}
+                    >
+                      {featuredEvent.title}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 700,
+                        color: "#fbbf24",
+                        fontSize: "0.9rem",
+                        display: "block",
+                      }}
+                    >
+                      ₹{featuredEvent.price ? Number(featuredEvent.price).toLocaleString("en-IN") : "0"}
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
             </MotionDiv>
           </Box>
         </Container>
@@ -418,6 +549,8 @@ function Events() {
                         component="img"
                         src={`${imageUrl}${event.imageUrl}`}
                         alt={event.title}
+                        loading="lazy"
+                        decoding="async"
                         sx={eventImageSx}
                       />
                       <Typography variant="h5" sx={{ fontWeight: 500, color: "#171717", mt: 1.2, mb: 0.4 }}>
@@ -445,7 +578,7 @@ function Events() {
 
             <Box sx={{ display: "flex", justifyContent: "center", mt: 5 }}>
               <Pagination
-                count={Math.ceil(filteredEvents.length / itemsPerPage)}
+                count={totalPages}
                 page={page}
                 onChange={(event, value) => setPage(value)}
                 shape="rounded"

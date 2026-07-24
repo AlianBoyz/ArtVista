@@ -31,18 +31,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String requestUri = request.getRequestURI();
         String method = request.getMethod();
 
-        // Keep auth/admin login endpoints and non-API routes public.
+        final String authHeader = request.getHeader("Authorization");
+        boolean hasToken = authHeader != null && authHeader.startsWith("Bearer ");
+
+        // Keep auth/admin login endpoints, non-API routes, OPTIONS, and unauthenticated public catalog reads public.
         if (!requestUri.startsWith("/api/")
                 || requestUri.startsWith("/api/auth/")
                 || requestUri.equals("/api/admin/login")
-                || isPublicCatalogReadRequest(requestUri, method)
-                || "OPTIONS".equalsIgnoreCase(method)) {
+                || "OPTIONS".equalsIgnoreCase(method)
+                || (isPublicCatalogReadRequest(requestUri, method) && !hasToken)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (!hasToken) {
             writeUnauthorized(response, "Missing or invalid Authorization header");
             return;
         }
@@ -121,6 +123,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private boolean isPublicCatalogReadRequest(String requestUri, String method) {
         if (!"GET".equalsIgnoreCase(method)) {
+            return false;
+        }
+        if (requestUri.equals("/api/events/my-registrations") || requestUri.contains("/is-registered")) {
             return false;
         }
         return requestUri.startsWith("/api/paintings")

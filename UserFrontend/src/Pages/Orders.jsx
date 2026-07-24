@@ -27,9 +27,11 @@ const getImageSrc = (path) => {
 const statusStyles = {
   PENDING: { label: "Pending", color: "#9a6700", background: "#fff3cd" },
   ACCEPT: { label: "Accepted", color: "#14532d", background: "#dcfce7" },
+  ACCEPTED: { label: "Accepted", color: "#14532d", background: "#dcfce7" },
   INTRANSIT: { label: "In transit", color: "#1e40af", background: "#dbeafe" },
   DELIVERED: { label: "Delivered", color: "#166534", background: "#dcfce7" },
   REJECT: { label: "Rejected", color: "#991b1b", background: "#fee2e2" },
+  REJECTED: { label: "Rejected", color: "#991b1b", background: "#fee2e2" },
 };
 
 const formatDate = (value) => {
@@ -58,201 +60,52 @@ function Orders() {
     }
 
     let isActive = true;
-    const fetchOrders = async () => {
+    const fetchAllData = async () => {
       try {
         const headers = { Authorization: `Bearer ${token}` };
 
-        let decodedEmail = null;
-        let currentUserId = contextUserId || localStorage.getItem("userId");
+        // 1. Fetch Painting Orders
+        const ordersPromise = fetch(`${url}/orders/my-orders`, { headers })
+          .then((res) => res.json())
+          .then((data) => (data && data.success && Array.isArray(data.data) ? data.data : []))
+          .catch(() => []);
 
-        try {
-          const decoded = jwtDecode(token);
-          if (decoded) {
-            if (decoded.email) decodedEmail = decoded.email;
-            if (decoded.sub && decoded.sub.includes("@")) decodedEmail = decoded.sub;
-            if (decoded.userId) currentUserId = decoded.userId;
-          }
-        } catch (e) {
-          // Token decode fallback
-        }
+        // 2. Fetch Event Registrations
+        const registrationsPromise = fetch(`${url}/events/my-registrations`, { headers })
+          .then((res) => res.json())
+          .then((data) => (data && data.success && Array.isArray(data.data) ? data.data : []))
+          .catch(() => []);
 
-        let userOrders = [];
-        let fetchedOrdersSuccessfully = false;
-
-        // Attempt 1: Call /orders/my-orders
-        try {
-          const ordersResponse = await fetch(`${url}/orders/my-orders`, { headers });
-          const ordersPayload = await ordersResponse.json();
-          if (ordersResponse.ok && ordersPayload && ordersPayload.success && Array.isArray(ordersPayload.data)) {
-            userOrders = ordersPayload.data;
-            fetchedOrdersSuccessfully = true;
-          }
-        } catch (err) {
-          console.warn("My-orders endpoint failed, using fallback:", err);
-        }
-
-        // Attempt 2: Fallback to /orders if /my-orders failed or returned error payload
-        if (!fetchedOrdersSuccessfully) {
-          try {
-            const allOrdersResponse = await fetch(`${url}/orders`, { headers });
-            const allOrdersPayload = await allOrdersResponse.json();
-            const allOrdersList = allOrdersPayload?.data || (Array.isArray(allOrdersPayload) ? allOrdersPayload : []);
-            if (Array.isArray(allOrdersList)) {
-              userOrders = allOrdersList.filter((o) => {
-                if (!o) return false;
-                const matchesId = currentUserId && (String(o.userId) === String(currentUserId) || String(o.user?.id) === String(currentUserId));
-                const matchesEmail = decodedEmail && o.user?.email && o.user.email.toLowerCase() === decodedEmail.toLowerCase();
-                return matchesId || matchesEmail;
-              });
-              fetchedOrdersSuccessfully = true;
-            }
-          } catch (err) {
-            console.warn("Fallback /orders endpoint failed:", err);
-          }
-        }
-
-        // Attempt to fetch event registrations
-        let eventBookings = [];
-        let fetchedRegsSuccessfully = false;
-
-        // Attempt 1: Call /events/my-registrations
-        try {
-          const regUrl = `${url}/events/my-registrations${currentUserId ? `?userId=${currentUserId}` : ""}`;
-          const registrationsResponse = await fetch(regUrl, { headers });
-          const registrationsPayload = await registrationsResponse.json();
-          if (registrationsResponse.ok && registrationsPayload && registrationsPayload.success && Array.isArray(registrationsPayload.data)) {
-            eventBookings = registrationsPayload.data;
-            fetchedRegsSuccessfully = true;
-          }
-        } catch (err) {
-          console.warn("My-registrations endpoint error:", err);
-        }
-
-        // Attempt 2: Call /admin/event-registrations (returns live status for all registrations)
-        if (!fetchedRegsSuccessfully) {
-          try {
-            const adminRegsRes = await fetch(`${url}/admin/event-registrations`, { headers });
-            const adminRegsPayload = await adminRegsRes.json();
-            const adminRegsList = adminRegsPayload?.data || (Array.isArray(adminRegsPayload) ? adminRegsPayload : []);
-            if (Array.isArray(adminRegsList) && adminRegsList.length > 0) {
-              const userRegs = adminRegsList.filter((r) => {
-                if (!r) return false;
-                const matchesId = currentUserId && (String(r.userId) === String(currentUserId) || String(r.user?.id) === String(currentUserId));
-                const matchesEmail = decodedEmail && r.user?.email && r.user.email.toLowerCase() === decodedEmail.toLowerCase();
-                return matchesId || matchesEmail;
-              });
-              if (userRegs.length > 0) {
-                eventBookings = userRegs;
-                fetchedRegsSuccessfully = true;
-              }
-            }
-          } catch (err) {
-            console.warn("Admin event-registrations endpoint error:", err);
-          }
-        }
-
-        // Attempt 3: Local Storage receipts & status overrides fallback
-        if (!fetchedRegsSuccessfully || eventBookings.length === 0) {
-          try {
-            const localSaved = JSON.parse(localStorage.getItem("user_event_registrations") || "[]");
-            let localRegs = localSaved.filter(r => !currentUserId || String(r.user?.id) === String(currentUserId) || String(r.userId) === String(currentUserId));
-
-            // Check events API for registration existence
-            const eventsRes = await fetch(`${url}/events`);
-            const eventsPayload = await eventsRes.json();
-            const allEvents = eventsPayload?.data || (Array.isArray(eventsPayload) ? eventsPayload : []);
-
-            if (Array.isArray(allEvents) && currentUserId) {
-              const globalStatuses = (() => {
-                try {
-                  return JSON.parse(localStorage.getItem("global_event_statuses") || "{}");
-                } catch (e) {
-                  return {};
-                }
-              })();
-
-              const regCheckPromises = allEvents.map(async (ev) => {
-                try {
-                  const checkRes = await fetch(`${url}/events/${ev.id}/is-registered?userId=${currentUserId}`, { headers });
-                  const checkJson = await checkRes.json();
-                  if (checkJson && checkJson.success && checkJson.data === true) {
-                    const statusOverride = globalStatuses[ev.id] || globalStatuses[ev.title] || localStorage.getItem(`event_status_${ev.id}`) || null;
-                    return {
-                      id: ev.id,
-                      event: ev,
-                      registeredAt: ev.eventDate || new Date().toISOString(),
-                      paymentType: "Confirmed",
-                      status: statusOverride
-                    };
-                  }
-                } catch (e) {}
-                return null;
-              });
-
-              const checkedRegs = (await Promise.all(regCheckPromises)).filter(Boolean);
-
-              const mergedMap = new Map();
-              localRegs.forEach((item) => {
-                const key = item.id || item.event?.id;
-                if (key) {
-                  const override = globalStatuses[item.id] || globalStatuses[item.event?.id] || localStorage.getItem(`event_status_${item.id}`) || localStorage.getItem(`event_status_${item.event?.id}`);
-                  if (override) {
-                    item.status = override;
-                  }
-                  mergedMap.set(key, item);
-                }
-              });
-
-              checkedRegs.forEach((item) => {
-                const key = item.id || item.event?.id;
-                if (key) {
-                  const override = globalStatuses[item.id] || globalStatuses[item.event?.id] || localStorage.getItem(`event_status_${item.id}`) || localStorage.getItem(`event_status_${item.event?.id}`);
-                  if (!mergedMap.has(key)) {
-                    item.status = override || item.status || "PENDING";
-                    mergedMap.set(key, item);
-                  } else {
-                    const existing = mergedMap.get(key);
-                    if (override) existing.status = override;
-                  }
-                }
-              });
-
-              eventBookings = Array.from(mergedMap.values());
-            } else if (localRegs.length > 0) {
-              eventBookings = localRegs;
-            }
-          } catch (err) {
-            console.warn("Error fetching event registrations fallback:", err);
-          }
-        }
+        const [fetchedOrders, fetchedRegistrations] = await Promise.all([
+          ordersPromise,
+          registrationsPromise,
+        ]);
 
         if (isActive) {
-          setOrders(userOrders);
-          setRegistrations(eventBookings);
+          setOrders(fetchedOrders);
+          setRegistrations(fetchedRegistrations);
           setError("");
         }
       } catch (err) {
-        if (isActive) setError("");
+        console.error("Error loading user orders:", err);
+        if (isActive) setError("Unable to load orders. Please try again.");
       } finally {
         if (isActive) setLoading(false);
       }
     };
 
-    fetchOrders();
-    const refreshId = window.setInterval(fetchOrders, 5000);
+    fetchAllData();
 
-    const handleStatusChange = () => {
-      fetchOrders();
-    };
+    // Auto-refresh every 6 seconds so status updates live when admin modifies status
+    const intervalId = window.setInterval(fetchAllData, 6000);
 
-    window.addEventListener("eventStatusUpdated", handleStatusChange);
-    window.addEventListener("storage", handleStatusChange);
+    const handleFocus = () => fetchAllData();
+    window.addEventListener("focus", handleFocus);
 
     return () => {
       isActive = false;
-      window.clearInterval(refreshId);
-      window.removeEventListener("eventStatusUpdated", handleStatusChange);
-      window.removeEventListener("storage", handleStatusChange);
+      window.clearInterval(intervalId);
+      window.removeEventListener("focus", handleFocus);
     };
   }, [token, contextUserId]);
 
