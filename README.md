@@ -49,7 +49,7 @@
 | Layer | Technology |
 |---|---|
 | **Frontend** | React 18, Vite, Material UI, Framer Motion |
-| **Backend** | Spring Boot 3, Spring Data JPA, Spring Security |
+| **Backend** | Spring Boot 3, Spring Data JPA |
 | **Database** | MySQL 8 |
 | **Authentication** | JWT (JSON Web Tokens) |
 | **Payment** | Cashfree Payment Gateway |
@@ -68,13 +68,6 @@
 - All user-specific data endpoints protected against unauthorized access
 - Auto-logout on token expiry and 30-minute inactivity
 - Admin routes protected on both client and server
-
----
-
-## 📄 License
-
-This project is licensed under the **MIT License**.
-
 ---
 
 <div align="center">
