@@ -58,7 +58,8 @@
 
 ## 🖼️ Screenshots
 
-> _Add your screenshots here_
+<img width="1890" height="912" alt="image" src="https://github.com/user-attachments/assets/75bbad08-c18e-4616-96b8-e97f5446f7d6" />
+
 
 ---
 
