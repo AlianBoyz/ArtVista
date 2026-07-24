@@ -10,7 +10,7 @@
 
 **A full-stack online art marketplace where users can explore, purchase paintings, and register for art events.**
 
-🌐 **Live at:** [your-live-url.com](https://your-live-url.com)
+🌐 **Live at:** COMING SOON
 
 </div>
 
